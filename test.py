@@ -10,4 +10,5 @@ data = numpy.random.random((1000,784))
 labels = numpy.random.randint(2,size=(1000,1))
 
 model.fit(data,labels,nb_epoch=10,batch_size=32)
+#Test
 

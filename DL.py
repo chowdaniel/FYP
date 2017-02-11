@@ -16,4 +16,4 @@ for line in a:
 
 		d.to_csv(path,columns= ["Adj Close"])
 	except:
-		print name + "Error"
+		print name + " Error"

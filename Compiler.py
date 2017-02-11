@@ -13,7 +13,8 @@ for line in a:
 		data = pandas.read_csv(path,header=0,index_col=0)
 		data.columns = [name]
 
-		d = d.merge(data,how="outer",left_index=True,right_index=True)
+		if len(data.index) == 504:
+			d = d.merge(data,how="outer",left_index=True,right_index=True)
 	except:
 		continue
 

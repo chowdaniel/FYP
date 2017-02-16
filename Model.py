@@ -34,8 +34,9 @@ def AutoEncoder():
 
 	model.fit(data,data,batch_size=10,nb_epoch=20,validation_split=0)
 
-	plot(model,to_file="Encoder.png",show_shapes=True)
-	return
+#	plot(model,to_file="Encoder.png",show_shapes=True)
+#	return
+
 	#Calculate Error for each Symbol
 	y_pred = model.predict(data)
 
@@ -124,7 +125,7 @@ def indexWeights(s):
 
 	model.fit(X,Y,batch_size=10,nb_epoch=20,validation_split=0)
 
-	plot(model,to_file="Model.png",show_shapes=True)
+#	plot(model,to_file="Model.png",show_shapes=True)
 
 	Y_pred = model.predict(X)
 
@@ -136,9 +137,8 @@ def indexWeights(s):
 	print res
 
 if __name__ == "__main__":
-#	for i in range(10):
-#		AutoEncoder()
-	AutoEncoder()
+	for i in range(10):
+		AutoEncoder()
 
 	res = parseResults()
 	indexWeights(res)

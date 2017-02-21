@@ -12,7 +12,7 @@ for line in a:
 
 	try:
 		d = web.DataReader(name,"yahoo",start,end)
-		path = os.path.join("Data",name + ".csv")
+		path = os.path.join(name + ".csv")
 
 		d.to_csv(path,columns= ["Adj Close"])
 	except:

@@ -7,7 +7,7 @@ d = pandas.DataFrame()
 for line in a:
 	name = line.replace("\n","")
 	
-	path = os.path.join("Data",name + ".csv")
+	path = os.path.join(name + ".csv")
 	
 	try:
 		data = pandas.read_csv(path,header=0,index_col=0)

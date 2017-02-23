@@ -13,7 +13,7 @@ imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
 data = imported_data.as_matrix()
 
-#data = numpy.log(data)
+data = numpy.log(data)
 #data = numpy.diff(data,axis=0)
 
 data_length = data.shape[1]
@@ -30,11 +30,13 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 
 	model.compile(optimizer="sgd",loss="mse",metrics=["accuracy"])
 
-	model.fit(data,data,batch_size=10,nb_epoch=10,validation_split=0,verbose=2)
+	model.fit(data,data,batch_size=10,nb_epoch=10,validation_split=0,verbose=0)
 
 
 	#Calculate Error for each Symbol
 	y_pred = model.predict(data)
+
+	print y_pred
 
 	diff = data - y_pred
 	SSE = numpy.sum(numpy.square(diff),axis=0)
@@ -45,8 +47,8 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 if __name__ == "__main__":
 	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	ENCODER_ACTIVATION = activation[3]
-	DECODER_ACTIVATION = activation[3]
+	ENCODER_ACTIVATION = activation[5]
+	DECODER_ACTIVATION = activation[4]
 
 	HIDDEN_DIM = 200
 	N_RUNS = 20
@@ -63,6 +65,8 @@ if __name__ == "__main__":
 
 	#Fit Autoencoder multiple times and record results into results file
 	for i in range(N_RUNS):
+		print "Run %d" % (i)
+
 		res = AutoEncoder(ENCODER_ACTIVATION,DECODER_ACTIVATION,HIDDEN_DIM)
 
 		for sse in res:

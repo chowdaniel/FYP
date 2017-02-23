@@ -1,0 +1,4 @@
+3 - RELU
+4 - tanh
+5 - sigmoid
+

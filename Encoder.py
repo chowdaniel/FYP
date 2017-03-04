@@ -1,5 +1,6 @@
 from keras.models import Sequential
 from keras.layers import Dense,Activation
+from keras.optimizers import SGD,Adam
 
 import pandas
 import numpy
@@ -14,24 +15,26 @@ imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 data = imported_data.as_matrix()
 
 data = numpy.log(data)
-#data = numpy.diff(data,axis=0)
+data = numpy.diff(data,axis=0)
 
 data_length = data.shape[1]
-
-#print data
 
 def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 
 	#Build and Fit Model
 	model = Sequential()
 
-	model.add(Dense(output_dim=hidden_dim,input_dim=data_length,activation=encoder_activation))
-	model.add(Dense(output_dim=data_length,activation=decoder_activation))
+	inputLayer = Dense(output_dim=hidden_dim,input_dim=data_length,activation=encoder_activation)
+	hiddenLayer = Dense(output_dim=data_length,activation=decoder_activation)
 
-	model.compile(optimizer="sgd",loss="mse",metrics=["accuracy"])
+	model.add(inputLayer)
+	model.add(hiddenLayer)
 
-	model.fit(data,data,batch_size=10,nb_epoch=10,validation_split=0,verbose=0)
+	opt = Adam(lr=0.001)
 
+	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
+
+	model.fit(data,data,batch_size=5,nb_epoch=30,validation_split=0,verbose=1)
 
 	#Calculate Error for each Symbol
 	y_pred = model.predict(data)
@@ -47,11 +50,11 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 if __name__ == "__main__":
 	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	ENCODER_ACTIVATION = activation[5]
-	DECODER_ACTIVATION = activation[4]
+	ENCODER_ACTIVATION = activation[3]
+	DECODER_ACTIVATION = activation[3]
 
 	HIDDEN_DIM = 200
-	N_RUNS = 20
+	N_RUNS = 1
 
 
 	#Write headers on results file

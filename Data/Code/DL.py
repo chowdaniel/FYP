@@ -4,15 +4,15 @@ import os
 
 a = open("Stocks.txt","r")
 
-start = datetime.datetime(2015,1,1)
-end = datetime.datetime(2017,1,1)
+start = datetime.datetime(2014,1,1)
+end = datetime.datetime(2016,1,1)
 
 for line in a:
 	name = line.replace("\n","")
 
 	try:
 		d = web.DataReader(name,"yahoo",start,end)
-		path = os.path.join(name + ".csv")
+		path = os.path.join("Data", name + ".csv")
 
 		d.to_csv(path,columns= ["Adj Close"])
 	except:

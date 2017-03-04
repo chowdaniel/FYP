@@ -34,7 +34,7 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-	model.fit(data,data,batch_size=5,nb_epoch=30,validation_split=0,verbose=1)
+	model.fit(data,data,batch_size=5,nb_epoch=30,validation_split=0,verbose=2)
 
 	#Calculate Error for each Symbol
 	y_pred = model.predict(data)
@@ -50,11 +50,11 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 if __name__ == "__main__":
 	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	ENCODER_ACTIVATION = activation[3]
-	DECODER_ACTIVATION = activation[3]
+	ENCODER_ACTIVATION = activation[5]
+	DECODER_ACTIVATION = activation[5]
 
 	HIDDEN_DIM = 200
-	N_RUNS = 1
+	N_RUNS = 20
 
 
 	#Write headers on results file

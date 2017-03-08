@@ -50,10 +50,10 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 if __name__ == "__main__":
 	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	ENCODER_ACTIVATION = activation[5]
-	DECODER_ACTIVATION = activation[5]
+	ENCODER_ACTIVATION = activation[3]
+	DECODER_ACTIVATION = activation[3]
 
-	HIDDEN_DIM = 200
+	HIDDEN_DIM = 400
 	N_RUNS = 20
 
 

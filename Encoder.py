@@ -53,7 +53,7 @@ if __name__ == "__main__":
 	ENCODER_ACTIVATION = activation[3]
 	DECODER_ACTIVATION = activation[3]
 
-	HIDDEN_DIM = 150
+	HIDDEN_DIM = 250
 	N_RUNS = 20
 
 

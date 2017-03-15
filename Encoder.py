@@ -36,7 +36,7 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 
 	model.fit(data,data,batch_size=5,nb_epoch=30,validation_split=0,verbose=2)
 
-	#Calculate Error for each Symbol
+	#Calculate Error for each Sywmbol
 	y_pred = model.predict(data)
 
 	print y_pred
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 	ENCODER_ACTIVATION = activation[3]
 	DECODER_ACTIVATION = activation[3]
 
-	HIDDEN_DIM = 400
+	HIDDEN_DIM = 5
 	N_RUNS = 20
 
 

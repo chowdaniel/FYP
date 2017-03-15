@@ -1,27 +1,36 @@
 from keras.models import Sequential
 from keras.layers import Dense,Activation
+from keras.optimizers import SGD,Adam
 
 import pandas
 import numpy
 import os
 
-def Replicating(L1,L2,L3):
+def Replicating(L1,L2,L3,n):
 
-	#Add S&P500 to list of data to import
-	stocks = ["^GSPC"]
-
+	#Import list of stocks sorted by increasing SSE
 	symbols = open("Portfolio.txt","r")
 
+	stocks = []
 	for symbol in symbols:
 		if symbol != "\n":
 			stocks.append(symbol.replace("\n",""))
 	symbols.close()
-
+	
+	#Select the stocks used for replicating portfolio
+	chosen_stocks = []
+	#10 Stocks with most communal info
+	for i in range(10):
+		chosen_stocks.append(stocks[i])
+	#n stocks with least communal info
+	for i in range(n):
+		chosen_stocks.append(stocks[-i-1])
+	chosen_stocks.append("^GSPC")
 
 	#Import data for stocks
 	data = pandas.DataFrame()
 
-	for stock in stocks:
+	for stock in chosen_stocks:
 		path = os.path.join("Data",stock + ".csv")
 	
 		d = pandas.read_csv(path,header=0,index_col=0)
@@ -29,10 +38,9 @@ def Replicating(L1,L2,L3):
 
 		data = data.merge(d,how="outer",left_index=True,right_index=True)
 
-
 	#Extract X and Y as numpy arrays
-	X = data.as_matrix(columns=stocks[1:])
-	Y = data.as_matrix(columns=stocks[0:1])
+	X = data.as_matrix(columns=chosen_stocks[0:-1])
+	Y = data.as_matrix(columns=chosen_stocks[-1:])
 
 	#log prices
 	X = numpy.log(X)
@@ -49,24 +57,34 @@ def Replicating(L1,L2,L3):
 	model.add(Dense(output_dim=2))
 	model.add(Dense(output_dim=1))
 
-	model.compile(optimizer="sgd",loss="mse",metrics=["accuracy"])
+	opt = Adam(lr=0.001)
 
-	model.fit(X,Y,batch_size=10,nb_epoch=10,validation_split=0)
+	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
+
+	model.fit(X,Y,batch_size=20,nb_epoch=50,validation_split=0,verbose=2)
 
 	Y_pred = model.predict(X)
 
 	res = []
+	output = open("Replication_Results.csv","w")
 	for i in range(len(Y)):
 		temp = [Y_pred[i].item(),Y[i].item()]
 		res.append(temp)
 
-	print res
+	for line in res:
+		output.write(str(line[0]))
+		output.write(",")
+		output.write(str(line[1]))
+		output.write("\n")
+		
+	output.close()
+#	print res
 
 if __name__ == "__main__":
 	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	L1 = activation[-1]
-	L2 = activation[-1]
-	L3 = activation[-1]
+	L1 = activation[3]
+	L2 = activation[3]
+	L3 = activation[3]
 
-	Replicating(L1,L2,L3)
+	Replicating(L1,L2,L3,20)

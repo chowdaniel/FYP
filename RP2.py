@@ -74,16 +74,12 @@ def Replicating(L1,L2,L3,n):
 
 	Y_pred = model.predict(X)
 
-	res = []
-	output = open("Replication_Results.csv","w")
+	output = open("InSampleResults.csv","w")
+	output.write("SnP Return,Portfolio Return\n")
 	for i in range(len(Y)):
-		temp = [Y_pred[i].item(),Y[i].item()]
-		res.append(temp)
-
-	for line in res:
-		output.write(str(line[0]))
+		output.write(str(Y[i].item()))
 		output.write(",")
-		output.write(str(line[1]))
+		output.write(str(Y_pred[i].item()))
 		output.write("\n")
 		
 	output.close()

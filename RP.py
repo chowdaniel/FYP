@@ -27,6 +27,9 @@ def Replicating(L1,L2,L3,n):
 		chosen_stocks.append(stocks[-i-1])
 	chosen_stocks.append("^GSPC")
 
+
+#Calibration Phase====================================================
+
 	#Import data for stocks
 	data = pandas.DataFrame()
 
@@ -65,20 +68,64 @@ def Replicating(L1,L2,L3,n):
 
 	Y_pred = model.predict(X)
 
-	res = []
-	output = open("Replication_Results.csv","w")
-	for i in range(len(Y)):
-		temp = [Y_pred[i].item(),Y[i].item()]
-		res.append(temp)
+	output = open("CalibrationResults.csv","w")
+	output.write("Date,SnP Return,Portfolio Return\n")
 
-	for line in res:
-		output.write(str(line[0]))
+	dates = data.index
+
+	for i in range(len(Y)):
+		output.write(dates[i+1])
 		output.write(",")
-		output.write(str(line[1]))
+		output.write(str(Y[i].item()))
+		output.write(",")
+		output.write(str(Y_pred[i].item()))
 		output.write("\n")
 		
 	output.close()
-#	print res
+
+
+#Start of Validation Phase====================================================
+
+	#Import data for stocks
+	data = pandas.DataFrame()
+
+	for stock in chosen_stocks:
+		path = os.path.join("Validation",stock + ".csv")
+	
+		d = pandas.read_csv(path,header=0,index_col=0)
+		d.columns = [stock]
+
+		data = data.merge(d,how="outer",left_index=True,right_index=True)
+
+	#Extract X and Y as numpy arrays
+	X = data.as_matrix(columns=chosen_stocks[0:-1])
+	Y = data.as_matrix(columns=chosen_stocks[-1:])
+
+	#log prices
+	X = numpy.log(X)
+	Y = numpy.log(Y)
+
+	#log returns
+	X = numpy.diff(X,axis=0)
+	Y = numpy.diff(Y,axis=0)
+
+	Y_pred = model.predict(X)
+
+	output = open("ValidationResults.csv","w")
+	output.write("Date,SnP Return,Portfolio Return\n")
+
+	dates = data.index
+
+	for i in range(len(Y)):
+		output.write(dates[i+1])
+		output.write(",")
+		output.write(str(Y[i].item()))
+		output.write(",")
+		output.write(str(Y_pred[i].item()))
+		output.write("\n")
+		
+	output.close()
+
 
 if __name__ == "__main__":
 	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]

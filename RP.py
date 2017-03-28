@@ -68,7 +68,7 @@ def Replicating(L1,L2,L3,n):
 
 	Y_pred = model.predict(X)
 
-	output = open("CalibrationResults.csv","w")
+	output = open("CalibrationResults" + str(n) + ".csv","w")
 	output.write("Date,SnP Return,Portfolio Return\n")
 
 	dates = data.index
@@ -111,7 +111,7 @@ def Replicating(L1,L2,L3,n):
 
 	Y_pred = model.predict(X)
 
-	output = open("ValidationResults.csv","w")
+	output = open("ValidationResults" + str(n) + ".csv","w")
 	output.write("Date,SnP Return,Portfolio Return\n")
 
 	dates = data.index
@@ -134,4 +134,4 @@ if __name__ == "__main__":
 	L2 = activation[3]
 	L3 = activation[3]
 
-	Replicating(L1,L2,L3,20)
+	Replicating(L1,L2,L3,40)

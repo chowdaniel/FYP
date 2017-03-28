@@ -27,6 +27,9 @@ def Replicating(L1,L2,L3,n):
 		chosen_stocks.append(stocks[-i-1])
 	chosen_stocks.append("^GSPC")
 
+
+#Calibration Phase====================================================
+
 	#Import data for stocks
 	data = pandas.DataFrame()
 
@@ -57,8 +60,8 @@ def Replicating(L1,L2,L3,n):
 			#Replace if below threshold level
 			if X[row_index][col_index] < -0.01:
 				X[row_index][col_index] = 0.01
-	
-	return
+
+
 	#Build Deep Network
 	model = Sequential()
 
@@ -74,9 +77,57 @@ def Replicating(L1,L2,L3,n):
 
 	Y_pred = model.predict(X)
 
-	output = open("InSampleResults.csv","w")
-	output.write("SnP Return,Portfolio Return\n")
+	output = open("Calibration2Results" + str(n) + ".csv","w")
+	output.write("Date,SnP Return,Portfolio Return\n")
+
+	dates = data.index
+
 	for i in range(len(Y)):
+		output.write(dates[i+1])
+		output.write(",")
+		output.write(str(Y[i].item()))
+		output.write(",")
+		output.write(str(Y_pred[i].item()))
+		output.write("\n")
+		
+	output.close()
+
+
+#Start of Validation Phase====================================================
+
+	#Import data for stocks
+	data = pandas.DataFrame()
+
+	for stock in chosen_stocks:
+		path = os.path.join("Validation",stock + ".csv")
+	
+		d = pandas.read_csv(path,header=0,index_col=0)
+		d.columns = [stock]
+
+		data = data.merge(d,how="outer",left_index=True,right_index=True)
+
+	#Extract X and Y as numpy arrays
+	X = data.as_matrix(columns=chosen_stocks[0:-1])
+	Y = data.as_matrix(columns=chosen_stocks[-1:])
+
+	#log prices
+	X = numpy.log(X)
+	Y = numpy.log(Y)
+
+	#log returns
+	X = numpy.diff(X,axis=0)
+	Y = numpy.diff(Y,axis=0)
+
+	Y_pred = model.predict(X)
+
+	output = open("Validation2Results" + str(n) + ".csv","w")
+	output.write("Date,SnP Return,Portfolio Return\n")
+
+	dates = data.index
+
+	for i in range(len(Y)):
+		output.write(dates[i+1])
+		output.write(",")
 		output.write(str(Y[i].item()))
 		output.write(",")
 		output.write(str(Y_pred[i].item()))
@@ -92,4 +143,4 @@ if __name__ == "__main__":
 	L2 = activation[3]
 	L3 = activation[3]
 
-	Replicating(L1,L2,L3,20)
+	Replicating(L1,L2,L3,40)

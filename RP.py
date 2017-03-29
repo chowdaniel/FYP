@@ -64,12 +64,12 @@ def Replicating(L1,L2,L3,n):
 
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-	model.fit(X,Y,batch_size=20,nb_epoch=50,validation_split=0,verbose=2)
+	model.fit(X,Y,batch_size=40,nb_epoch=100,validation_split=0,verbose=2)
 
 	Y_pred = model.predict(X)
 
 	output = open("CalibrationResults" + str(n) + ".csv","w")
-	output.write("Date,SnP Return,Portfolio Return\n")
+	output.write("Date,SnP Return," + str(n) + "\n")
 
 	dates = data.index
 
@@ -112,7 +112,7 @@ def Replicating(L1,L2,L3,n):
 	Y_pred = model.predict(X)
 
 	output = open("ValidationResults" + str(n) + ".csv","w")
-	output.write("Date,SnP Return,Portfolio Return\n")
+	output.write("Date,SnP Return," + str(n) + "\n")
 
 	dates = data.index
 

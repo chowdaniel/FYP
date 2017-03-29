@@ -19,7 +19,7 @@ def RP():
 
 	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
 	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]))
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
 	#Formatting for plot
 	#Format x-axis
@@ -32,6 +32,7 @@ def RP():
 	plt.ylabel("Cumulative Return")
 	#Show legend
 	plt.legend()
+	plt.title("Replicating Portfolio(Calibration)")
 
 	#Plot Validation Graphs
 	plt.figure(2)
@@ -46,7 +47,7 @@ def RP():
 
 	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
 	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]))
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
 	#Formatting for plot
 	#Format x-axis
@@ -59,6 +60,7 @@ def RP():
 	plt.ylabel("Cumulative Return")
 	#Show legend
 	plt.legend()
+	plt.title("Replicating Portfolio(Validation)")
 
 
 	plt.show()
@@ -77,7 +79,7 @@ def IRP():
 
 	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
 	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]))
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
 	#Formatting for plot
 	#Format x-axis
@@ -90,11 +92,13 @@ def IRP():
 	plt.ylabel("Cumulative Return")
 	#Show legend
 	plt.legend()
+	plt.title("Improved Replicating Portfolio(Calibration)")
+
 
 	#Plot Validation Graphs
 	plt.figure(2)
 	file = os.path.join("Results","IRPValidation.csv")
-	
+
 	fig,ax = plt.subplots()
 
 	data = pandas.read_csv(file,header=0,index_col=0)
@@ -104,7 +108,7 @@ def IRP():
 
 	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
 	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]))
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
 	#Formatting for plot
 	#Format x-axis
@@ -117,10 +121,11 @@ def IRP():
 	plt.ylabel("Cumulative Return")
 	#Show legend
 	plt.legend()
+	plt.title("Improved Replicating Portfolio(Validation)")
 
 
 	plt.show()
 
 
 if __name__ == "__main__":
-	RP()
+	IRP()

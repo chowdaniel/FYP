@@ -53,14 +53,10 @@ def Replicating(L1,L2,L3,n):
 	X = numpy.diff(X,axis=0)
 	Y = numpy.diff(Y,axis=0)
 
-	#Iterate through all elements in dataset
-	for row_index in range(len(X)):
-		for col_index in range(len(X[0])):
-			
-			#Replace if below threshold level
-			if X[row_index][col_index] < -0.01:
-				X[row_index][col_index] = 0.01
-
+	#Replace target data below threshold level
+	for i in range(len(Y)):
+		if Y[i] < -0.01:
+			Y[i] = 0.01
 
 	#Build Deep Network
 	model = Sequential()

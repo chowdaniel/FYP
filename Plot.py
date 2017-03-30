@@ -126,6 +126,45 @@ def IRP():
 
 	plt.show()
 
+def DeepFrontier():
+	file = os.path.join("Results","ValidationError.csv")
+	
+	fig,ax = plt.subplots()
+
+	plt.figure(1)
+	data = pandas.read_csv(file,header=0,index_col=0)
+
+	y = data.index
+	y = map(lambda y: y+10,y)
+
+	ax.plot(data["RP"],y)
+
+	#Formatting for plot
+	#Label Axis
+	plt.xlabel("Validation Error")
+	plt.ylabel("Number of Stocks used")
+	plt.gca().invert_yaxis()
+	#Show legend
+	plt.legend()
+	plt.title("Deep Frontier")
+
+	plt.figure(2)
+
+	fig,ax = plt.subplots()
+
+	ax.plot(data["IRP"],y)
+
+	#Formatting for plot
+	#Label Axis
+	plt.xlabel("Validation Error")
+	plt.ylabel("Number of Stocks used")
+	plt.gca().invert_yaxis()
+	#Show legend
+	plt.legend()
+	plt.title("Deep Frontier")
+
+	plt.show()
 
 if __name__ == "__main__":
-	IRP()
+	#IRP()
+	DeepFrontier()

@@ -6,7 +6,7 @@ import pandas
 import numpy
 import os
 
-def Replicating(L1,L2,L3,nLow,nHigh,sample,validation):
+def Replicating(sample,validation,nLow,nHigh):
 
 	#Import list of stocks sorted by increasing SSE
 	symbols = open("Portfolio.txt","r")
@@ -52,9 +52,9 @@ def Replicating(L1,L2,L3,nLow,nHigh,sample,validation):
 	#Build Deep Network
 	model = Sequential()
 
-	model.add(Dense(output_dim=4,input_dim=X.shape[1]))
-	model.add(Dense(output_dim=2))
-	model.add(Dense(output_dim=1))
+	model.add(Dense(output_dim=4,input_dim=X.shape[1],activation="relu"))
+	model.add(Dense(output_dim=2,activation="relu"))
+	model.add(Dense(output_dim=1,activation="relu"))
 
 	opt = Adam(lr=0.001)
 
@@ -86,12 +86,8 @@ def Replicating(L1,L2,L3,nLow,nHigh,sample,validation):
 	data = pandas.DataFrame()
 
 	for stock in chosen_stocks:
-		path = os.path.join("Validation",stock + ".csv")
-	
-		d = pandas.read_csv(path,header=0,index_col=0)
-		d.columns = [stock]
-
-		data = data.merge(d,how="outer",left_index=True,right_index=True)
+		prices = validation[stock]
+		data[stock] = prices
 
 	#Extract X and Y as numpy arrays
 	X = data.as_matrix(columns=chosen_stocks[0:-1])
@@ -128,4 +124,8 @@ if __name__ == "__main__":
 	FILENAME = "Data.csv"
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
+	sample = imported_data.loc["2014-01-02":"2015-12-31"]
+	validation = imported_data.loc["2016-01-04":"2016-12-30"]
+
 	Replicating(sample,validation,10,10)
+

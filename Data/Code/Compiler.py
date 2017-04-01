@@ -13,12 +13,12 @@ for line in a:
 		data = pandas.read_csv(path,header=0,index_col=0)
 		data.columns = [name]
 
-		if len(data.index) == 504:
+		if len(data.index) == 756:
 			d = d.merge(data,how="outer",left_index=True,right_index=True)
 	except:
 		continue
 
-outpath = os.path.join("Merged.csv")
+outpath = os.path.join("Data.csv")
 
 #d = d.fillna(method="backfill")
 #d = d.fillna(method="ffill")

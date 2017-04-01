@@ -6,7 +6,7 @@ import pandas
 import numpy
 import os
 
-def Replicating(L1,L2,L3,n):
+def Replicating(L1,L2,L3,nLow,nHigh,sample,validation):
 
 	#Import list of stocks sorted by increasing SSE
 	symbols = open("Portfolio.txt","r")
@@ -20,10 +20,10 @@ def Replicating(L1,L2,L3,n):
 	#Select the stocks used for replicating portfolio
 	chosen_stocks = []
 	#10 Stocks with most communal info
-	for i in range(10):
+	for i in range(nLow):
 		chosen_stocks.append(stocks[i])
 	#n stocks with least communal info
-	for i in range(n):
+	for i in range(nHigh):
 		chosen_stocks.append(stocks[-i-1])
 	chosen_stocks.append("^GSPC")
 
@@ -34,12 +34,8 @@ def Replicating(L1,L2,L3,n):
 	data = pandas.DataFrame()
 
 	for stock in chosen_stocks:
-		path = os.path.join("Data",stock + ".csv")
-	
-		d = pandas.read_csv(path,header=0,index_col=0)
-		d.columns = [stock]
-
-		data = data.merge(d,how="outer",left_index=True,right_index=True)
+		prices = sample[stock]
+		data[stock] = prices
 
 	#Extract X and Y as numpy arrays
 	X = data.as_matrix(columns=chosen_stocks[0:-1])
@@ -128,10 +124,8 @@ def Replicating(L1,L2,L3,n):
 
 
 if __name__ == "__main__":
-	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	L1 = activation[3]
-	L2 = activation[3]
-	L3 = activation[3]
+	FILENAME = "Data.csv"
+	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
-	Replicating(L1,L2,L3,40)
+	Replicating(sample,validation,10,10)

@@ -6,137 +6,126 @@ import pandas
 import numpy
 import os
 
-def Replicating(L1,L2,L3,n):
+def Replicating(sample,validation,N):
 
-	#Import list of stocks sorted by increasing SSE
-	symbols = open("Portfolio.txt","r")
+	s_res = pandas.DataFrame(index=sample.index[1:])
+	v_res = pandas.DataFrame(index=validation.index[1:])
 
-	stocks = []
-	for symbol in symbols:
-		if symbol != "\n":
-			stocks.append(symbol.replace("\n",""))
-	symbols.close()
-	
-	#Select the stocks used for replicating portfolio
-	chosen_stocks = []
-	#10 Stocks with most communal info
-	for i in range(10):
-		chosen_stocks.append(stocks[i])
-	#n stocks with least communal info
-	for i in range(n):
-		chosen_stocks.append(stocks[-i-1])
-	chosen_stocks.append("^GSPC")
+	s_res["^GSPC"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^GSPC"])),axis=0)
+	v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
 
+	v_error = pandas.DataFrame(index=N)
+	error = []
 
-#Calibration Phase====================================================
+	for n in N:
+		#Import list of stocks sorted by increasing SSE
+		symbols = open("Portfolio.txt","r")
 
-	#Import data for stocks
-	data = pandas.DataFrame()
-
-	for stock in chosen_stocks:
-		path = os.path.join("Data",stock + ".csv")
-	
-		d = pandas.read_csv(path,header=0,index_col=0)
-		d.columns = [stock]
-
-		data = data.merge(d,how="outer",left_index=True,right_index=True)
-
-	#Extract X and Y as numpy arrays
-	X = data.as_matrix(columns=chosen_stocks[0:-1])
-	Y = data.as_matrix(columns=chosen_stocks[-1:])
-
-	#log prices
-	X = numpy.log(X)
-	Y = numpy.log(Y)
-
-	#log returns
-	X = numpy.diff(X,axis=0)
-	Y = numpy.diff(Y,axis=0)
-
-	#Replace target data below threshold level
-	for i in range(len(Y)):
-		if Y[i] < -0.01:
-			Y[i] = 0.01
-
-	#Build Deep Network
-	model = Sequential()
-
-	model.add(Dense(output_dim=4,input_dim=X.shape[1]))
-	model.add(Dense(output_dim=2))
-	model.add(Dense(output_dim=1))
-
-	opt = Adam(lr=0.001)
-
-	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
-
-	model.fit(X,Y,batch_size=40,nb_epoch=100,validation_split=0,verbose=2)
-
-	Y_pred = model.predict(X)
-
-	output = open("Calibration2Results" + str(n) + ".csv","w")
-	output.write("Date,SnP Return,"+ str(n) + "\n")
-
-	dates = data.index
-
-	for i in range(len(Y)):
-		output.write(dates[i+1])
-		output.write(",")
-		output.write(str(Y[i].item()))
-		output.write(",")
-		output.write(str(Y_pred[i].item()))
-		output.write("\n")
+		stocks = []
+		for symbol in symbols:
+			if symbol != "\n":
+				stocks.append(symbol.replace("\n",""))
+		symbols.close()
 		
-	output.close()
+		#Select the stocks used for replicating portfolio
+		chosen_stocks = []
+		#10 Stocks with most communal info
+		for i in range(n[0]):
+			chosen_stocks.append(stocks[i])
+		#n stocks with least communal info
+		for i in range(n[1]):
+			chosen_stocks.append(stocks[-i-1])
+		chosen_stocks.append("^GSPC")
 
 
-#Start of Validation Phase====================================================
+		#Calibration Phase====================================================
 
-	#Import data for stocks
-	data = pandas.DataFrame()
+		#Import data for stocks
+		data = pandas.DataFrame()
 
-	for stock in chosen_stocks:
-		path = os.path.join("Validation",stock + ".csv")
-	
-		d = pandas.read_csv(path,header=0,index_col=0)
-		d.columns = [stock]
+		for stock in chosen_stocks:
+			prices = sample[stock]
+			data[stock] = prices
 
-		data = data.merge(d,how="outer",left_index=True,right_index=True)
+		#Extract X and Y as numpy arrays
+		X = data.as_matrix(columns=chosen_stocks[0:-1])
+		Y = data.as_matrix(columns=chosen_stocks[-1:])
 
-	#Extract X and Y as numpy arrays
-	X = data.as_matrix(columns=chosen_stocks[0:-1])
-	Y = data.as_matrix(columns=chosen_stocks[-1:])
+		#log prices
+		X = numpy.log(X)
+		Y = numpy.log(Y)
 
-	#log prices
-	X = numpy.log(X)
-	Y = numpy.log(Y)
+		#log returns
+		X = numpy.diff(X,axis=0)
+		Y = numpy.diff(Y,axis=0)
 
-	#log returns
-	X = numpy.diff(X,axis=0)
-	Y = numpy.diff(Y,axis=0)
+		#Replace target data below threshold level
+		for i in range(len(Y)):
+			if Y[i] < -0.01:
+				Y[i] = 0.01
 
-	Y_pred = model.predict(X)
+		s_res["^^GSPC"] = Y
 
-	output = open("Validation2Results" + str(n) + ".csv","w")
-	output.write("Date,SnP Return," + str(n) + "\n")
+		#Build Deep Network
+		model = Sequential()
 
-	dates = data.index
+		model.add(Dense(output_dim=4,input_dim=X.shape[1],activation="relu"))
+		model.add(Dense(output_dim=2,activation="relu"))
+		model.add(Dense(output_dim=1))
 
-	for i in range(len(Y)):
-		output.write(dates[i+1])
-		output.write(",")
-		output.write(str(Y[i].item()))
-		output.write(",")
-		output.write(str(Y_pred[i].item()))
-		output.write("\n")
-		
-	output.close()
+		opt = Adam(lr=0.001)
+		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
+		model.fit(X,Y,batch_size=40,nb_epoch=100,validation_split=0,verbose=0)
+
+		Y_pred = model.predict(X)
+		s_res[n] = Y_pred
+
+		#Validation Phase====================================================
+
+		#Import data for stocks
+		data = pandas.DataFrame()
+
+		for stock in chosen_stocks:
+			prices = validation[stock]
+			data[stock] = prices
+
+		#Extract X and Y as numpy arrays
+		X = data.as_matrix(columns=chosen_stocks[0:-1])
+		Y = data.as_matrix(columns=chosen_stocks[-1:])
+
+		#log prices
+		X = numpy.log(X)
+		Y = numpy.log(Y)
+
+		#log returns
+		X = numpy.diff(X,axis=0)
+		Y = numpy.diff(Y,axis=0)
+
+		#Replace target data below threshold level
+		for i in range(len(Y)):
+			if Y[i] < -0.01:
+				Y[i] = 0.01
+
+		v_res["^^GSPC"] = Y
+
+		Y_pred = model.predict(X)
+		v_res[n] = Y_pred
+
+		error.append(numpy.sum(numpy.square(numpy.subtract(Y_pred,Y))))
+
+	v_error["Error"] = error
+
+	s_res.to_csv("SamplePredict2.csv")
+	v_res.to_csv("ValidationPredict2.csv")
+	v_error.to_csv("ValidationError2.csv")
 
 if __name__ == "__main__":
-	activation = ["softmax","softplus","softsign","relu","tanh","sigmoid","hard_sigmoid","linear"]
 
-	L1 = activation[3]
-	L2 = activation[3]
-	L3 = activation[3]
+	FILENAME = "Data.csv"
+	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
-	Replicating(L1,L2,L3,40)
+	sample = imported_data.loc["2014-01-02":"2015-12-31"]
+	validation = imported_data.loc["2016-01-04":"2016-12-30"]
+
+	Replicating(sample,validation,[(10,0),(10,5),(10,10),(10,15),(10,20),(10,25),(10,30),(10,35),(10,40)])

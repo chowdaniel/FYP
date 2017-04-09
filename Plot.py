@@ -7,7 +7,7 @@ import numpy
 
 def RP():
 	#Plot Calibration Graphs
-	file = os.path.join("Results","RPCalibration.csv")
+	file = os.path.join("Results","SamplePredict.csv")
 	
 	fig,ax = plt.subplots()
 
@@ -15,9 +15,9 @@ def RP():
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	dates = data.index
-	dates = map(lambda x: datetime.datetime.strptime(x,"%d/%m/%Y"),dates)
+	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
-	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
+	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
 	for i in range(0,45,10):
 		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
@@ -36,16 +36,16 @@ def RP():
 
 	#Plot Validation Graphs
 	plt.figure(2)
-	file = os.path.join("Results","RPValidation.csv")
+	file = os.path.join("Results","ValidationPredict.csv")
 	
 	fig,ax = plt.subplots()
 
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	dates = data.index
-	dates = map(lambda x: datetime.datetime.strptime(x,"%d/%m/%Y"),dates)
+	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
-	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
+	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
 	for i in range(0,45,10):
 		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
@@ -62,12 +62,11 @@ def RP():
 	plt.legend()
 	plt.title("Replicating Portfolio(Validation)")
 
-
 	plt.show()
 
 def IRP():
 	#Plot Calibration Graphs
-	file = os.path.join("Results","IRPCalibration.csv")
+	file = os.path.join("Results","SamplePredict2.csv")
 	
 	fig,ax = plt.subplots()
 
@@ -75,9 +74,10 @@ def IRP():
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	dates = data.index
-	dates = map(lambda x: datetime.datetime.strptime(x,"%d/%m/%Y"),dates)
+	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
-	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
+	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
+	ax.plot(dates,numpy.cumsum(data["^^GSPC"]),label="SP500 Modified")
 	for i in range(0,45,10):
 		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
@@ -97,16 +97,17 @@ def IRP():
 
 	#Plot Validation Graphs
 	plt.figure(2)
-	file = os.path.join("Results","IRPValidation.csv")
+	file = os.path.join("Results","ValidationPredict2.csv")
 
 	fig,ax = plt.subplots()
 
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	dates = data.index
-	dates = map(lambda x: datetime.datetime.strptime(x,"%d/%m/%Y"),dates)
+	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
-	ax.plot(dates,numpy.cumsum(data["SnP Return"]),label="SP500")
+	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
+	ax.plot(dates,numpy.cumsum(data["^^GSPC"]),label="SP500 Modified")
 	for i in range(0,45,10):
 		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
@@ -127,32 +128,16 @@ def IRP():
 	plt.show()
 
 def DeepFrontier():
-	file = os.path.join("Results","ValidationError.csv")
+	file = os.path.join("Results","ValidationError2.csv")
 	
 	fig,ax = plt.subplots()
 
-	plt.figure(1)
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	y = data.index
 	y = map(lambda y: y+10,y)
 
-	ax.plot(data["RP"],y)
-
-	#Formatting for plot
-	#Label Axis
-	plt.xlabel("Validation Error")
-	plt.ylabel("Number of Stocks used")
-	plt.gca().invert_yaxis()
-	#Show legend
-	plt.legend()
-	plt.title("Deep Frontier")
-
-	plt.figure(2)
-
-	fig,ax = plt.subplots()
-
-	ax.plot(data["IRP"],y)
+	ax.plot(data["Error"],y)
 
 	#Formatting for plot
 	#Label Axis

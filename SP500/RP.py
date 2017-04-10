@@ -126,7 +126,7 @@ if __name__ == "__main__":
 	FILENAME = "Data.csv"
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
-	sample = imported_data.loc[start3:end5]
+	sample = imported_data.loc[start1:end5]
 	validation = imported_data.loc[start6:end6]
 
 	Replicating(sample,validation,[(20,0),(20,10),(20,20),(20,30),(20,40)])

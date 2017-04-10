@@ -122,10 +122,25 @@ def Replicating(sample,validation,N):
 
 if __name__ == "__main__":
 
+	start1 = "2014-01-02"
+	start2 = "2014-06-02"
+	start3 = "2014-11-03"
+	start4 = "2015-04-01"
+	start5 = "2015-09-01"
+
+	end1 = "2014-05-30"
+	end2 = "2014-10-31"
+	end3 = "2015-03-31"
+	end4 = "2015-08-31"
+	end5 = "2015-12-31"
+
+	start6 = "2016-01-04"
+	end6 = "2016-12-30"
+
 	FILENAME = "Data.csv"
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
-	sample = imported_data.loc["2014-01-02":"2015-12-31"]
-	validation = imported_data.loc["2016-01-04":"2016-12-30"]
+	sample = imported_data.loc[start1:end5]
+	validation = imported_data.loc[start6:end6]
 
-	Replicating(sample,validation,[(10,0),(10,5),(10,10),(10,15),(10,20),(10,25),(10,30),(10,35),(10,40)])
+	Replicating(sample,validation,[(10,0),(10,10),(10,20),(10,30),(10,40)])

@@ -11,15 +11,15 @@ def Replicating(sample,validation,N):
 	s_res = pandas.DataFrame(index=sample.index[1:])
 	v_res = pandas.DataFrame(index=validation.index[1:])
 
-	s_res["^GSPC"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^GSPC"])),axis=0)
-	v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
+	s_res["^STI"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^STI"])),axis=0)
+	v_res["^STI"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^STI"])),axis=0)
 
 	v_error = pandas.DataFrame(index=N)
 	error = []
 
 	for n in N:
 		#Import list of stocks sorted by increasing SSE
-		symbols = open("Portfolio.txt","r")
+		symbols = open("Portfolio.csv","r")
 
 		stocks = []
 		for symbol in symbols:
@@ -35,7 +35,7 @@ def Replicating(sample,validation,N):
 		#n stocks with least communal info
 		for i in range(n[1]):
 			chosen_stocks.append(stocks[-i-1])
-		chosen_stocks.append("^GSPC")
+		chosen_stocks.append("^STI")
 
 
 		#Calibration Phase====================================================
@@ -58,13 +58,6 @@ def Replicating(sample,validation,N):
 		#log returns
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
-
-		#Replace target data below threshold level
-		for i in range(len(Y)):
-			if Y[i] < -0.01:
-				Y[i] = 0.01
-
-		s_res["^^GSPC"] = Y
 
 		#Build Deep Network
 		model = Sequential()
@@ -102,13 +95,6 @@ def Replicating(sample,validation,N):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
-		#Replace target data below threshold level
-		for i in range(len(Y)):
-			if Y[i] < -0.01:
-				Y[i] = 0.01
-
-		v_res["^^GSPC"] = Y
-
 		Y_pred = model.predict(X)
 		v_res[n] = Y_pred
 
@@ -116,16 +102,16 @@ def Replicating(sample,validation,N):
 
 	v_error["Error"] = error
 
-	s_res.to_csv("SamplePredict2.csv")
-	v_res.to_csv("ValidationPredict2.csv")
-	v_error.to_csv("ValidationError2.csv")
+	s_res.to_csv("SamplePredict.csv")
+	v_res.to_csv("ValidationPredict.csv")
+	v_error.to_csv("ValidationError.csv")
 
 if __name__ == "__main__":
 
 	FILENAME = "Data.csv"
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
-	sample = imported_data.loc["2014-01-02":"2015-12-31"]
-	validation = imported_data.loc["2016-01-04":"2016-12-30"]
+	sample = imported_data.loc["2014-01-01":"2015-12-31"]
+	validation = imported_data.loc["2016-01-01":"2016-12-30"]
 
-	Replicating(sample,validation,[(10,0),(10,5),(10,10),(10,15),(10,20),(10,25),(10,30),(10,35),(10,40)])
+	Replicating(sample,validation,[(1,0),(1,1),(1,5),(1,10)])

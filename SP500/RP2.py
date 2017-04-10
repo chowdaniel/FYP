@@ -19,7 +19,7 @@ def Replicating(sample,validation,N):
 
 	for n in N:
 		#Import list of stocks sorted by increasing SSE
-		symbols = open("Portfolio.txt","r")
+		symbols = open("Portfolio.csv","r")
 
 		stocks = []
 		for symbol in symbols:
@@ -59,6 +59,13 @@ def Replicating(sample,validation,N):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
+		#THRESHOLD REPLACEMENT
+		for i in range(len(Y)):
+			if Y[i] < -0.01:
+				Y[i] = 0.01
+
+		s_res["^^GSPC"] = Y
+
 		#Build Deep Network
 		model = Sequential()
 
@@ -95,6 +102,13 @@ def Replicating(sample,validation,N):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
+		#Replace target data below threshold level
+		for i in range(len(Y)):
+			if Y[i] < -0.01:
+				Y[i] = 0.01
+
+		v_res["^^GSPC"] = Y
+
 		Y_pred = model.predict(X)
 		v_res[n] = Y_pred
 
@@ -102,9 +116,9 @@ def Replicating(sample,validation,N):
 
 	v_error["Error"] = error
 
-	s_res.to_csv("SamplePredict.csv")
-	v_res.to_csv("ValidationPredict.csv")
-	v_error.to_csv("ValidationError.csv")
+	s_res.to_csv("SamplePredict2.csv")
+	v_res.to_csv("ValidationPredict2.csv")
+	v_error.to_csv("ValidationError2.csv")
 
 if __name__ == "__main__":
 

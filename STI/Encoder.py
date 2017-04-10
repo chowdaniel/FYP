@@ -7,7 +7,7 @@ import numpy
 import os
 
 #Model Parameters
-FILENAME = "Merged.csv"
+FILENAME = "Data.csv"
 
 #Begin Code
 imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
@@ -39,7 +39,7 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 	#Calculate Error for each Sywmbol
 	y_pred = model.predict(data)
 
-	print y_pred
+	#print y_pred
 
 	diff = data - y_pred
 	SSE = numpy.sum(numpy.square(diff),axis=0)
@@ -53,18 +53,12 @@ if __name__ == "__main__":
 	ENCODER_ACTIVATION = activation[3]
 	DECODER_ACTIVATION = activation[3]
 
-	HIDDEN_DIM = 250
+	HIDDEN_DIM = 5
 	N_RUNS = 20
 
-
-	#Write headers on results file
-	results = open("Results.csv","w")
 	stocks = list(imported_data)
 
-	for stock in stocks:
-		results.write(stock)
-		results.write(",")
-	results.write("\n")
+	results = numpy.empty([N_RUNS,len(stocks)])
 
 	#Fit Autoencoder multiple times and record results into results file
 	for i in range(N_RUNS):
@@ -72,10 +66,17 @@ if __name__ == "__main__":
 
 		res = AutoEncoder(ENCODER_ACTIVATION,DECODER_ACTIVATION,HIDDEN_DIM)
 
-		for sse in res:
-			results.write(str(sse.item()))
-			results.write(",")
-		results.write("\n")
+		results[i] = res
 
-	results.close()
+	sumError = numpy.sum(results,axis=0)
+	df = pandas.DataFrame(data=results,columns=stocks)
 
+	df.to_csv("EncoderError.csv")
+	portfolio = [x for y,x in sorted(zip(sumError,stocks))]
+
+	output = open("Portfolio.csv","w")
+	for stock in portfolio:
+		output.write(stock)
+		output.write("\n")
+
+	output.close()

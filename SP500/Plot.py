@@ -128,14 +128,14 @@ def IRP():
 	plt.show()
 
 def DeepFrontier():
-	file = os.path.join("ValidationError.csv")
+	file = os.path.join("ValidationError2.csv")
 	
 	fig,ax = plt.subplots()
 
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	y = data.index
-	y = map(lambda y: y+20,y)
+	y = map(lambda y: y+10,y)
 
 	ax.plot(data["Error"],y)
 
@@ -151,5 +151,5 @@ def DeepFrontier():
 	plt.show()
 
 if __name__ == "__main__":
-	RP()
+	IRP()
 	DeepFrontier()

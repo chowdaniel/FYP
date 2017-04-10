@@ -61,8 +61,8 @@ def Replicating(sample,validation,N):
 
 		#THRESHOLD REPLACEMENT
 		for i in range(len(Y)):
-			if Y[i] < -0.01:
-				Y[i] = 0.01
+			if Y[i] < -0.03:
+				Y[i] = 0.03
 
 		s_res["^^GSPC"] = Y
 
@@ -104,8 +104,8 @@ def Replicating(sample,validation,N):
 
 		#Replace target data below threshold level
 		for i in range(len(Y)):
-			if Y[i] < -0.01:
-				Y[i] = 0.01
+			if Y[i] < -0.03:
+				Y[i] = 0.03
 
 		v_res["^^GSPC"] = Y
 

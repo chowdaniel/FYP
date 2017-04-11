@@ -114,4 +114,4 @@ if __name__ == "__main__":
 	sample = imported_data.loc["2014-01-01":"2015-12-31"]
 	validation = imported_data.loc["2016-01-01":"2016-12-30"]
 
-	Replicating(sample,validation,[(1,0),(1,1),(1,5),(1,10)])
+	Replicating(sample,validation,[(10,0),(10,5),(10,10)])

@@ -7,7 +7,7 @@ import numpy
 
 def RP():
 	#Plot Calibration Graphs
-	file = os.path.join("Results","SamplePredict.csv")
+	file = os.path.join("SamplePredict.csv")
 	
 	fig,ax = plt.subplots()
 
@@ -18,7 +18,7 @@ def RP():
 	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
 	ax.plot(dates,numpy.cumsum(data["^STI"]),label="STI")
-	for i in range(0,15,1):
+	for i in range(0,50,1):
 		try:
 			ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 		except:
@@ -39,7 +39,7 @@ def RP():
 
 	#Plot Validation Graphs
 	plt.figure(2)
-	file = os.path.join("Results","ValidationPredict.csv")
+	file = os.path.join("ValidationPredict.csv")
 	
 	fig,ax = plt.subplots()
 
@@ -49,7 +49,7 @@ def RP():
 	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
 	ax.plot(dates,numpy.cumsum(data["^STI"]),label="STI")
-	for i in range(0,45,10):
+	for i in range(0,50,1):
 		try:
 			ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 		except:
@@ -72,7 +72,7 @@ def RP():
 
 def IRP():
 	#Plot Calibration Graphs
-	file = os.path.join("Results","SamplePredict2.csv")
+	file = os.path.join("SamplePredict2.csv")
 	
 	fig,ax = plt.subplots()
 
@@ -103,7 +103,7 @@ def IRP():
 
 	#Plot Validation Graphs
 	plt.figure(2)
-	file = os.path.join("Results","ValidationPredict2.csv")
+	file = os.path.join("ValidationPredict2.csv")
 
 	fig,ax = plt.subplots()
 
@@ -134,7 +134,7 @@ def IRP():
 	plt.show()
 
 def DeepFrontier():
-	file = os.path.join("Results","ValidationError2.csv")
+	file = os.path.join("ValidationError.csv")
 	
 	fig,ax = plt.subplots()
 
@@ -158,4 +158,4 @@ def DeepFrontier():
 
 if __name__ == "__main__":
 	RP()
-	#DeepFrontier()
+	DeepFrontier()

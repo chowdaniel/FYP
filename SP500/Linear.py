@@ -1,10 +1,8 @@
-from keras.models import Sequential
-from keras.layers import Dense,Activation
-from keras.optimizers import SGD,Adam
-
 import pandas
 import numpy
 import os
+
+import statsmodels.api as sm
 
 def Replicating(sample,validation,N):
 
@@ -13,9 +11,6 @@ def Replicating(sample,validation,N):
 
 	s_res["^GSPC"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^GSPC"])),axis=0)
 	v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
-
-	v_error = pandas.DataFrame(index=N)
-	error = []
 
 	for n in N:
 		#Import list of stocks sorted by increasing SSE
@@ -59,19 +54,12 @@ def Replicating(sample,validation,N):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
-		#Build Deep Network
-		model = Sequential()
+		X = sm.add_constant(X)
 
-		model.add(Dense(output_dim=4,input_dim=X.shape[1],activation="tanh"))
-		model.add(Dense(output_dim=2,activation="tanh"))
-		model.add(Dense(output_dim=1))
+		model = sm.OLS(Y,X)
+		results = model.fit()
 
-		opt = Adam(lr=0.001)
-		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
-
-		model.fit(X,Y,batch_size=40,nb_epoch=100,validation_split=0,verbose=0)
-
-		Y_pred = model.predict(X)
+		Y_pred = results.predict(X)
 		s_res[n] = Y_pred
 
 		#Validation Phase====================================================
@@ -95,16 +83,15 @@ def Replicating(sample,validation,N):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
-		Y_pred = model.predict(X)
+		X = sm.add_constant(X)
+
+		Y_pred = results.predict(X)
 		v_res[n] = Y_pred
-
-		error.append(numpy.sum(numpy.square(numpy.subtract(Y_pred,Y))))
-
-	v_error["Error"] = error
 
 	s_res.to_csv("SamplePredict.csv")
 	v_res.to_csv("ValidationPredict.csv")
-	v_error.to_csv("ValidationError.csv")
+
+
 
 if __name__ == "__main__":
 

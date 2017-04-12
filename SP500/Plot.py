@@ -19,7 +19,7 @@ def RP():
 
 	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
 	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+20))
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
 	#Formatting for plot
 	#Format x-axis
@@ -47,7 +47,7 @@ def RP():
 
 	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
 	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+20))
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
 
 	#Formatting for plot
 	#Format x-axis
@@ -135,7 +135,7 @@ def DeepFrontier():
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	y = data.index
-	y = map(lambda y: y+20,y)
+	y = map(lambda y: y+10,y)
 
 	ax.plot(data["Error"],y)
 

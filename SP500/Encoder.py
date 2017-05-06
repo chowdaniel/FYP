@@ -1,6 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense,Activation
 from keras.optimizers import SGD,Adam
+import keras
 
 import pandas
 import numpy
@@ -17,6 +18,7 @@ data = imported_data.as_matrix()
 
 data = numpy.log(data)
 data = numpy.diff(data,axis=0)
+data = numpy.absolute(data)
 
 data_length = data.shape[1]
 
@@ -25,11 +27,25 @@ def AutoEncoder(encoder_activation,decoder_activation,hidden_dim):
 	#Build and Fit Model
 	model = Sequential()
 
-	inputLayer = Dense(output_dim=hidden_dim,input_dim=data_length,activation=encoder_activation)
-	hiddenLayer = Dense(output_dim=data_length,activation=decoder_activation)
+	leaky = False
 
-	model.add(inputLayer)
-	model.add(hiddenLayer)
+	if not leaky:
+		inputLayer = Dense(output_dim=hidden_dim,input_dim=data_length,activation=encoder_activation)
+		hiddenLayer = Dense(output_dim=data_length,activation=decoder_activation)
+		
+		model.add(inputLayer)
+		model.add(hiddenLayer)
+	else:
+
+		inputLayer = Dense(output_dim=hidden_dim,input_dim=data_length)
+		hiddenLayer = Dense(output_dim=data_length)
+
+		leakyLayer = keras.layers.advanced_activations.LeakyReLU(alpha=0.01)
+
+		model.add(inputLayer)
+		model.add(leakyLayer)
+		model.add(hiddenLayer)
+		model.add(leakyLayer)
 
 	opt = Adam(lr=0.001)
 
@@ -54,7 +70,7 @@ if __name__ == "__main__":
 	ENCODER_ACTIVATION = activation[3]
 	DECODER_ACTIVATION = activation[3]
 
-	HIDDEN_DIM = 250
+	HIDDEN_DIM = 20
 	N_RUNS = 20
 
 	stocks = list(imported_data)

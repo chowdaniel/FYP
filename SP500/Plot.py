@@ -11,15 +11,14 @@ def RP():
 	
 	fig,ax = plt.subplots()
 
-	plt.figure(1)
 	data = pandas.read_csv(file,header=0,index_col=0)
 
 	dates = data.index
 	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
 	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
-	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
+	for i in range(1,6):
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label="Portfolio" + str(i))
 
 	#Formatting for plot
 	#Format x-axis
@@ -31,11 +30,13 @@ def RP():
 	plt.xlabel("Month/Year")
 	plt.ylabel("Cumulative Return")
 	#Show legend
-	plt.legend()
+	box = ax.get_position()
+	ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+	ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
 	plt.title("Replicating Portfolio(Calibration)")
 
 	#Plot Validation Graphs
-	plt.figure(2)
 	file = os.path.join("ValidationPredict.csv")
 	
 	fig,ax = plt.subplots()
@@ -46,8 +47,8 @@ def RP():
 	dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)
 
 	ax.plot(dates,numpy.cumsum(data["^GSPC"]),label="SP500")
-	for i in range(0,45,10):
-		ax.plot(dates,numpy.cumsum(data[str(i)]),label=str(i+10))
+	for i in range(1,6):
+		ax.plot(dates,numpy.cumsum(data[str(i)]),label="Portfolio" + str(i))
 
 	#Formatting for plot
 	#Format x-axis
@@ -59,9 +60,11 @@ def RP():
 	plt.xlabel("Month/Year")
 	plt.ylabel("Cumulative Return")
 	#Show legend
-	plt.legend()
-	plt.title("Replicating Portfolio(Validation)")
+	box = ax.get_position()
+	ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+	ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
+	plt.title("Replicating Portfolio(Validation)")
 	plt.show()
 
 def IRP():
@@ -152,4 +155,3 @@ def DeepFrontier():
 
 if __name__ == "__main__":
 	RP()
-	DeepFrontier()

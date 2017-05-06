@@ -14,10 +14,9 @@ def Replicating(sample,validation,N):
 	s_res["^GSPC"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^GSPC"])),axis=0)
 	v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
 
-	v_error = pandas.DataFrame(index=N)
-	error = []
-
+	counter = 0
 	for n in N:
+		counter += 1
 		#Import list of stocks sorted by increasing SSE
 		symbols = open("Portfolio.csv","r")
 
@@ -72,7 +71,7 @@ def Replicating(sample,validation,N):
 		model.fit(X,Y,batch_size=40,nb_epoch=100,validation_split=0,verbose=0)
 
 		Y_pred = model.predict(X)
-		s_res[n] = Y_pred
+		s_res[counter] = Y_pred
 
 		#Validation Phase====================================================
 
@@ -96,15 +95,10 @@ def Replicating(sample,validation,N):
 		Y = numpy.diff(Y,axis=0)
 
 		Y_pred = model.predict(X)
-		v_res[n] = Y_pred
-
-		error.append(numpy.sum(numpy.square(numpy.subtract(Y_pred,Y))))
-
-	v_error["Error"] = error
+		v_res[counter] = Y_pred
 
 	s_res.to_csv("SamplePredict.csv")
 	v_res.to_csv("ValidationPredict.csv")
-	v_error.to_csv("ValidationError.csv")
 
 if __name__ == "__main__":
 
@@ -129,4 +123,4 @@ if __name__ == "__main__":
 	sample = imported_data.loc[start1:end5]
 	validation = imported_data.loc[start6:end6]
 
-	Replicating(sample,validation,[(10,0),(10,10),(10,20),(10,30),(10,40)])
+	Replicating(sample,validation,[(10,10),(10,10),(10,10),(10,10),(10,10)])

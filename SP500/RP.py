@@ -1,13 +1,62 @@
 from keras.models import Sequential
-from keras.layers import Dense,Activation
+from keras.layers import Dense,Activation,Dropout
 from keras.optimizers import SGD,Adam
+from keras.layers.advanced_activations import LeakyReLU
 
 import pandas
 import numpy
 import os
 
-def Replicating(sample,validation,N):
+def importData():
+	start1 = "2014-01-02"
+	start2 = "2014-06-02"
+	start3 = "2014-11-03"
+	start4 = "2015-04-01"
+	start5 = "2015-09-01"
 
+	end1 = "2014-05-30"
+	end2 = "2014-10-31"
+	end3 = "2015-03-31"
+	end4 = "2015-08-31"
+	end5 = "2015-12-31"
+
+	start6 = "2016-01-04"
+	end6 = "2016-12-30"
+
+	FILENAME = "Data.csv"
+	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
+
+	sample = imported_data.loc[start1:end5]
+	validation = imported_data.loc[start6:end6]
+
+	return (sample,validation)
+
+def buildModel(input_dim,leaky=False):
+	model = Sequential()
+
+	leakyLayer = LeakyReLU(alpha=0.01)
+
+	activation = "relu"
+	dropout_rate - 0.5
+
+	if leaky:
+		model.add(Dense(output_dim=4,input_dim=input_dim))
+		model.add(leakyLayer)
+	else:
+		model.add(Dense(output_dim=4,input_dim=input_dim,activation=activation))
+	model.add(Dropout(dropout_rate))
+
+	if leaky:
+		model.add(Dense(output_dim=2))
+		model.add(leakyLayer)
+	else:
+		model.add(Dense(output_dim=2,activation=activation))
+	model.add(Dropout(dropout_rate))
+	model.add(Dense(output_dim=1))
+
+	return model
+
+def Replicating(sample,validation,parameters):
 	s_res = pandas.DataFrame(index=sample.index[1:])
 	v_res = pandas.DataFrame(index=validation.index[1:])
 
@@ -15,8 +64,9 @@ def Replicating(sample,validation,N):
 	v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
 
 	counter = 0
-	for n in N:
+	for params in parameters:
 		counter += 1
+		input_dim = params[0] + params[1]
 		#Import list of stocks sorted by increasing SSE
 		symbols = open("Portfolio.csv","r")
 
@@ -28,11 +78,11 @@ def Replicating(sample,validation,N):
 		
 		#Select the stocks used for replicating portfolio
 		chosen_stocks = []
-		#10 Stocks with most communal info
-		for i in range(n[0]):
+		#Stocks with most communal info
+		for i in range(params[0]):
 			chosen_stocks.append(stocks[i])
-		#n stocks with least communal info
-		for i in range(n[1]):
+		#Stocks with least communal info
+		for i in range(params[1]):
 			chosen_stocks.append(stocks[-i-1])
 		chosen_stocks.append("^GSPC")
 
@@ -58,12 +108,8 @@ def Replicating(sample,validation,N):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
-		#Build Deep Network
-		model = Sequential()
-
-		model.add(Dense(output_dim=4,input_dim=X.shape[1],activation="tanh"))
-		model.add(Dense(output_dim=2,activation="tanh"))
-		model.add(Dense(output_dim=1))
+		#Build and fit Deep Network
+		model = buildModel(input_dim,leaky=False)
 
 		opt = Adam(lr=0.001)
 		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
@@ -101,26 +147,8 @@ def Replicating(sample,validation,N):
 	v_res.to_csv("ValidationPredict.csv")
 
 if __name__ == "__main__":
+	sample,validation = importData()
 
-	start1 = "2014-01-02"
-	start2 = "2014-06-02"
-	start3 = "2014-11-03"
-	start4 = "2015-04-01"
-	start5 = "2015-09-01"
+	parameters = [(10,10),(10,10),(10,10),(10,10),(10,10)]
 
-	end1 = "2014-05-30"
-	end2 = "2014-10-31"
-	end3 = "2015-03-31"
-	end4 = "2015-08-31"
-	end5 = "2015-12-31"
-
-	start6 = "2016-01-04"
-	end6 = "2016-12-30"
-
-	FILENAME = "Data.csv"
-	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
-
-	sample = imported_data.loc[start1:end5]
-	validation = imported_data.loc[start6:end6]
-
-	Replicating(sample,validation,[(10,10),(10,10),(10,10),(10,10),(10,10)])
+	Replicating(sample,validation,parameters)

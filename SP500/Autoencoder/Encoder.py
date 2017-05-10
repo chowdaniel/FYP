@@ -27,17 +27,17 @@ def buildModel(encoder_activation,decoder_activation,input_dim,hidden_dim):
 	leakyLayer = LeakyReLU(alpha=0.01)
 
 	if encoder_activation == "leaky":
-		model.add(Dense(output_dim=hidden_dim,input_dim=input_dim))
+		model.add(Dense(hidden_dim,input_dim=input_dim))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(output_dim=hidden_dim,input_dim=input_dim,activation=encoder_activation))
-	model.add(Dropout(0.5))
+		model.add(Dense(hidden_dim,input_dim=input_dim,activation=encoder_activation))
+	model.add(Dropout(0.2))
 
 	if decoder_activation == "leaky":
-		model.add(Dense(output_dim=input_dim))
+		model.add(Dense(input_dim))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(output_dim=input_dim,activation=decoder_activation))
+		model.add(Dense(input_dim,activation=decoder_activation))
 
 	return model
 
@@ -45,7 +45,7 @@ def fitModel(model,X,Y):
 	opt = Adam(lr=0.001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-	model.fit(X,X,batch_size=5,nb_epoch=30,validation_split=0,verbose=2)
+	model.fit(X,X,batch_size=5,epochs=30,validation_split=0,verbose=2)
 
 	#Calculate Error for each Sywmbol
 	y_pred = model.predict(X)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 	ENCODER_ACTIVATION = activation[0]
 	DECODER_ACTIVATION = activation[0]
 
-	HIDDEN_DIM = 20
+	HIDDEN_DIM = 5
 	N_RUNS = 20
 	nStocks = X.shape[1]
 

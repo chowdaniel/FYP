@@ -57,18 +57,21 @@ def buildModel(input_dim,leaky=False):
 	return model
 
 def evaluateFold(X_train,X_test,Y_train,Y_test):
-	model = buildModel(X_train.shape[1],leaky=False)
+	coeff = 0
 
-	opt = Adam(lr=0.001)
-	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
+	while numpy.absolute(coeff) < 5:
+		model = buildModel(X_train.shape[1],leaky=False)
 
-	model.fit(X_train,Y_train,batch_size=40,epochs=100,validation_split=0,verbose=0)
+		opt = Adam(lr=0.001)
+		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-	Y_pred = model.predict(X_test)
+		model.fit(X_train,Y_train,batch_size=40,epochs=100,validation_split=0,verbose=0)
 
-	print numpy.transpose(Y_pred)
-	coeff = numpy.std(Y_pred)/numpy.mean(Y_pred)
-	print "Coefficient: %f" % (coeff)
+		Y_pred = model.predict(X_test)
+
+		coeff = numpy.std(Y_pred)/numpy.mean(Y_pred)
+	#print numpy.transpose(Y_pred)
+	#print "Coefficient: %f" % (coeff)
 
 	fold_error = numpy.sum(numpy.square(numpy.subtract(Y_pred,Y_test)))
 	return fold_error
@@ -77,7 +80,7 @@ if __name__ == "__main__":
 	sample = importData()
 
 	n_folds = 5
-	models = [(10,10),(10,10),(10,10),(10,10),(10,10)]
+	models = [(10,0),(10,5),(10,10),(10,15),(10,20),(10,25),(10,30)]
 
 	for model in models:
 		#Import list of stocks sorted by increasing SSE
@@ -126,6 +129,7 @@ if __name__ == "__main__":
 			X_train, X_test = X[train_index], X[test_index]
 			Y_train, Y_test = Y[train_index], Y[test_index]
 
+			total_error += evaluateFold(X_train,X_test,Y_train,Y_test)
 			total_error += evaluateFold(X_train,X_test,Y_train,Y_test)
 
 		print "Model: %s\tError: %f" % (model,total_error)

@@ -41,18 +41,18 @@ def buildModel(input_dim,leaky=False):
 	dropout_rate = 0.5
 
 	if leaky:
-		model.add(Dense(output_dim=4,input_dim=input_dim))
+		model.add(Dense(4,input_dim=input_dim))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(output_dim=4,input_dim=input_dim,activation=activation))
+		model.add(Dense(4,input_dim=input_dim,activation=activation))
 	model.add(Dropout(dropout_rate))
 
 	if leaky:
-		model.add(Dense(output_dim=2))
+		model.add(Dense(2))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(output_dim=2,activation=activation))
-	model.add(Dense(output_dim=1))
+		model.add(Dense(2,activation=activation))
+	model.add(Dense(1))
 
 	return model
 
@@ -62,9 +62,13 @@ def evaluateFold(X_train,X_test,Y_train,Y_test):
 	opt = Adam(lr=0.001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-	model.fit(X_train,Y_train,batch_size=40,nb_epoch=100,validation_split=0,verbose=0)
+	model.fit(X_train,Y_train,batch_size=40,epochs=100,validation_split=0,verbose=0)
 
 	Y_pred = model.predict(X_test)
+
+	print numpy.transpose(Y_pred)
+	coeff = numpy.std(Y_pred)/numpy.mean(Y_pred)
+	print "Coefficient: %f" % (coeff)
 
 	fold_error = numpy.sum(numpy.square(numpy.subtract(Y_pred,Y_test)))
 	return fold_error
@@ -73,7 +77,7 @@ if __name__ == "__main__":
 	sample = importData()
 
 	n_folds = 5
-	models = [(10,0),(10,5)]
+	models = [(10,10),(10,10),(10,10),(10,10),(10,10)]
 
 	for model in models:
 		#Import list of stocks sorted by increasing SSE

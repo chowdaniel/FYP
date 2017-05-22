@@ -39,24 +39,23 @@ def buildModel(encoder_activation,decoder_activation,input_dim,hidden_dim):
 	else:
 		model.add(Dense(input_dim,activation=decoder_activation))
 
-	opt = Adam(lr=0.001)
-	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
-
 	return model
 
 def fitModel(model,X,Y):
+	opt = Adam(lr=0.001)
+	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
 	model.fit(X,X,batch_size=5,epochs=30,validation_split=0,verbose=2)
 
-	#Calculate Error for each Symbol
+	#Calculate Error for each Sywmbol
 	y_pred = model.predict(X)
 
 	print y_pred
 
 	diff = Y - y_pred
-	MSE = numpy.sum(numpy.square(diff),axis=0)/X.shape[0]
+	SSE = numpy.sum(numpy.square(diff),axis=0)
 
-	return MSE
+	return SSE
 
 if __name__ == "__main__":
 	X,Y,stocks = importData()

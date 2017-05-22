@@ -26,47 +26,22 @@ def importData():
 	FILENAME = "Data.csv"
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
 
-	sample = imported_data.loc[start1:end5]
-	validation = imported_data.loc[start6:end6]
+	data = imported_data.loc[start1:end6]
 
-	return (sample,validation)
+	return data
 
-def buildModel(input_dim,leaky=False):
-	model = Sequential()
+def evaluateModel(X_train,X_test,Y_train,Y_test):
+	pass
 
-	leakyLayer = LeakyReLU(alpha=0.01)
+if __name__ == "__main__":
+	sample = importData()
+	n_obs = sample.shape[0]
 
-	activation = "relu"
-	dropout_rate - 0.5
+	n_split = 5
+	split_size = int(n_obs/n_split)
+	models = [(10,0),(10,5),(10,10),(10,15),(10,20),(10,25),(10,30)]
 
-	if leaky:
-		model.add(Dense(output_dim=4,input_dim=input_dim))
-		model.add(leakyLayer)
-	else:
-		model.add(Dense(output_dim=4,input_dim=input_dim,activation=activation))
-	model.add(Dropout(dropout_rate))
-
-	if leaky:
-		model.add(Dense(output_dim=2))
-		model.add(leakyLayer)
-	else:
-		model.add(Dense(output_dim=2,activation=activation))
-	model.add(Dropout(dropout_rate))
-	model.add(Dense(output_dim=1))
-
-	return model
-
-def Replicating(sample,validation,parameters):
-	s_res = pandas.DataFrame(index=sample.index[1:])
-	v_res = pandas.DataFrame(index=validation.index[1:])
-
-	s_res["^GSPC"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^GSPC"])),axis=0)
-	v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
-
-	counter = 0
-	for params in parameters:
-		counter += 1
-		input_dim = params[0] + params[1]
+	for model in models:
 		#Import list of stocks sorted by increasing SSE
 		symbols = open("Portfolio.csv","r")
 
@@ -79,17 +54,14 @@ def Replicating(sample,validation,parameters):
 		#Select the stocks used for replicating portfolio
 		chosen_stocks = []
 		#Stocks with most communal info
-		for i in range(params[0]):
+		for i in range(model[0]):
 			chosen_stocks.append(stocks[i])
 		#Stocks with least communal info
-		for i in range(params[1]):
+		for i in range(model[1]):
 			chosen_stocks.append(stocks[-i-1])
 		chosen_stocks.append("^GSPC")
 
-
-		#Calibration Phase====================================================
-
-		#Import data for stocks
+		#Import data for chosen stocks
 		data = pandas.DataFrame()
 
 		for stock in chosen_stocks:
@@ -108,47 +80,11 @@ def Replicating(sample,validation,parameters):
 		X = numpy.diff(X,axis=0)
 		Y = numpy.diff(Y,axis=0)
 
-		#Build and fit Deep Network
-		model = buildModel(input_dim,leaky=False)
+		for i in range(1,n_split):
+			train_index = list(range(0,i*split_size))
+			test_index = list(range(i*split_size,(i+1)*split_size))
 
-		opt = Adam(lr=0.001)
-		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
+			X_train, X_test = X[train_index], X[test_index]
+			Y_train, Y_test = Y[train_index], Y[test_index]
 
-		model.fit(X,Y,batch_size=40,nb_epoch=100,validation_split=0,verbose=0)
-
-		Y_pred = model.predict(X)
-		s_res[counter] = Y_pred
-
-		#Validation Phase====================================================
-
-		#Import data for stocks
-		data = pandas.DataFrame()
-
-		for stock in chosen_stocks:
-			prices = validation[stock]
-			data[stock] = prices
-
-		#Extract X and Y as numpy arrays
-		X = data.as_matrix(columns=chosen_stocks[0:-1])
-		Y = data.as_matrix(columns=chosen_stocks[-1:])
-
-		#log prices
-		X = numpy.log(X)
-		Y = numpy.log(Y)
-
-		#log returns
-		X = numpy.diff(X,axis=0)
-		Y = numpy.diff(Y,axis=0)
-
-		Y_pred = model.predict(X)
-		v_res[counter] = Y_pred
-
-	s_res.to_csv("SamplePredict.csv")
-	v_res.to_csv("ValidationPredict.csv")
-
-if __name__ == "__main__":
-	sample,validation = importData()
-
-	parameters = [(10,10),(10,10),(10,10),(10,10),(10,10)]
-
-	Replicating(sample,validation,parameters)
+			evaluateModel(X_train,X_test,Y_train,Y_test)

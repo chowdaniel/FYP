@@ -1,7 +1,9 @@
 from keras.models import Sequential
 from keras.layers import Dense,Activation,Dropout
 from keras.optimizers import SGD,Adam
+from keras.initializers import Constant
 from keras.layers.advanced_activations import LeakyReLU
+import matplotlib.pyplot as plt
 
 import pandas
 import numpy
@@ -30,8 +32,53 @@ def importData():
 
 	return data
 
+def buildModel(input_dim,leaky=False):
+	model = Sequential()
+
+	bias_init = Constant(0.1)
+	leakyLayer = LeakyReLU(alpha=0.01)
+
+	activation = "relu"
+	dropout_rate = 0.5
+
+	if leaky:
+		model.add(Dense(4,input_dim=input_dim))
+		model.add(leakyLayer)
+	else:
+		model.add(Dense(4,input_dim=input_dim,activation=activation,bias_initializer=bias_init))
+	model.add(Dropout(dropout_rate))
+
+	if leaky:
+		model.add(Dense(2))
+		model.add(leakyLayer)
+	else:
+		model.add(Dense(2,activation=activation,bias_initializer=bias_init))
+	model.add(Dense(1))
+
+	return model
+
 def evaluateModel(X_train,X_test,Y_train,Y_test):
-	pass
+	coeff = 0
+
+	plot = True
+	learning_rate = 0.001
+
+	while numpy.absolute(coeff) < 5:
+		model = buildModel(X_train.shape[1],leaky=False)
+
+		opt = Adam(lr=0.001)
+		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
+
+		history = model.fit(X_train,Y_train,batch_size=40,epochs=100,validation_data=(X_test,Y_test),verbose=0)
+
+		Y_pred = model.predict(X_test)
+
+		coeff = numpy.std(Y_pred)/numpy.mean(Y_pred)
+		print "Model Fitted with coeff: %f" % (coeff)
+	#print numpy.transpose(Y_pred)
+	#print "Coefficient: %f" % (coeff)
+
+	fold_error = numpy.sum(numpy.square(numpy.subtract(Y_pred,Y_test)))
 
 if __name__ == "__main__":
 	sample = importData()
@@ -40,8 +87,10 @@ if __name__ == "__main__":
 	n_split = 5
 	split_size = int(n_obs/n_split)
 	models = [(10,0),(10,5),(10,10),(10,15),(10,20),(10,25),(10,30)]
+	models = [(10,0)]
 
 	for model in models:
+		print "Building Model (%d,%d)" % (model[0],model[1])
 		#Import list of stocks sorted by increasing SSE
 		symbols = open("Portfolio.csv","r")
 
@@ -81,6 +130,7 @@ if __name__ == "__main__":
 		Y = numpy.diff(Y,axis=0)
 
 		for i in range(1,n_split):
+			print "\nSample Split: %d-%d\t Validation Split: %d" % (1,i,i+1)
 			train_index = list(range(0,i*split_size))
 			test_index = list(range(i*split_size,(i+1)*split_size))
 

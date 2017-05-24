@@ -78,7 +78,19 @@ def evaluateModel(X_train,X_test,Y_train,Y_test):
 	#print numpy.transpose(Y_pred)
 	#print "Coefficient: %f" % (coeff)
 
-	fold_error = numpy.sum(numpy.square(numpy.subtract(Y_pred,Y_test)))
+	MSE = numpy.sum(numpy.square(numpy.subtract(Y_pred,Y_test)))/len(Y_test)
+	print MSE
+	fig,ax = plt.subplots()
+
+	if plot:
+		ax.plot(history.history["loss"],label="Sample Loss")
+		ax.plot(history.history["val_loss"],label="Validation Loss")
+
+		plt.title("Model Loss")
+		plt.xlabel("epoch")
+		plt.ylabel("Loss")
+		ax.legend(loc="upper left")
+		plt.show()
 
 if __name__ == "__main__":
 	sample = importData()

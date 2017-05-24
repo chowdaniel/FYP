@@ -45,14 +45,14 @@ def buildModel(input_dim,leaky=False):
 		model.add(Dense(4,input_dim=input_dim))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(4,input_dim=input_dim,activation=activation,bias_initializer=bias_init))
+		model.add(Dense(4,input_dim=input_dim,activation=activation))
 	model.add(Dropout(dropout_rate))
 
 	if leaky:
 		model.add(Dense(2))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(2,activation=activation,bias_initializer=bias_init))
+		model.add(Dense(2,activation=activation))
 	model.add(Dense(1))
 
 	return model
@@ -69,7 +69,7 @@ def evaluateModel(X_train,X_test,Y_train,Y_test):
 		opt = Adam(lr=0.001)
 		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-		history = model.fit(X_train,Y_train,batch_size=40,epochs=100,validation_data=(X_test,Y_test),verbose=0)
+		history = model.fit(X_train,Y_train,batch_size=40,epochs=150,validation_data=(X_test,Y_test),verbose=0)
 
 		Y_pred = model.predict(X_test)
 

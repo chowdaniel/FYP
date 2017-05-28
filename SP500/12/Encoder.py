@@ -17,7 +17,7 @@ def importData():
 
 	data = numpy.log(data)
 	data = numpy.diff(data,axis=0)
-	#data = numpy.absolute(data)
+	data = numpy.absolute(data)
 
 	return (data,data,list(imported_data))
 
@@ -39,7 +39,7 @@ def buildModel(encoder_activation,decoder_activation,input_dim,hidden_dim):
 	else:
 		model.add(Dense(input_dim,activation=decoder_activation))
 
-	opt = Adam(lr=0.00001)
+	opt = Adam(lr=0.0001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
 	return model
@@ -63,10 +63,10 @@ if __name__ == "__main__":
 
 	activation = ["relu","tanh","leaky","sigmoid"]
 
-	ENCODER_ACTIVATION = activation[2]
-	DECODER_ACTIVATION = activation[2]
+	ENCODER_ACTIVATION = activation[0]
+	DECODER_ACTIVATION = activation[0]
 
-	HIDDEN_DIM = 10
+	HIDDEN_DIM = 300
 	N_RUNS = 20
 	nStocks = X.shape[1]
 

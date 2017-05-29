@@ -1,7 +1,6 @@
 from keras.models import Sequential
 from keras.layers import Dense,Activation,Dropout
 from keras.optimizers import SGD,Adam
-from keras.layers.advanced_activations import LeakyReLU
 
 import pandas
 import numpy
@@ -21,23 +20,24 @@ def importData():
 
 	return (data,data,list(imported_data))
 
-def buildModel(encoder_activation,decoder_activation,input_dim,hidden_dim):
+def buildModel(input_dim):
 	#Build and Fit Model
 	model = Sequential()
-	leakyLayer = LeakyReLU(alpha=0.01)
 
-	if encoder_activation == "leaky":
-		model.add(Dense(hidden_dim,input_dim=input_dim))
-		model.add(leakyLayer)
-	else:
-		model.add(Dense(hidden_dim,input_dim=input_dim,activation=encoder_activation))
+	layers = 2
+
+	model.add(Dense(7,input_dim=input_dim,activation="relu"))
 	model.add(Dropout(0.2))
 
-	if decoder_activation == "leaky":
-		model.add(Dense(input_dim))
-		model.add(leakyLayer)
-	else:
-		model.add(Dense(input_dim,activation=decoder_activation))
+	if layers >= 2:
+		model.add(Dense(3,activation="relu"))
+		model.add(Dropout(0.2))
+
+	if layers == 3:
+		model.add(Dense(4,activation="relu"))
+		model.add(Dropout(0.2))
+
+	model.add(Dense(input_dim,activation="relu"))
 
 	opt = Adam(lr=0.0001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
@@ -61,12 +61,6 @@ def fitModel(model,X,Y):
 if __name__ == "__main__":
 	X,Y,stocks = importData()
 
-	activation = ["relu","tanh","leaky","sigmoid"]
-
-	ENCODER_ACTIVATION = activation[0]
-	DECODER_ACTIVATION = activation[0]
-
-	HIDDEN_DIM = 300
 	N_RUNS = 20
 	nStocks = X.shape[1]
 
@@ -76,7 +70,7 @@ if __name__ == "__main__":
 	for i in range(N_RUNS):
 		print "Run %d" % (i)
 
-		model = buildModel(ENCODER_ACTIVATION,DECODER_ACTIVATION,nStocks,HIDDEN_DIM)
+		model = buildModel(nStocks)
 		res = fitModel(model,X,Y)
 
 		results[i] = res

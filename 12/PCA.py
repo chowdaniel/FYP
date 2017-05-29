@@ -26,19 +26,6 @@ def PCA(N):
 	variance = pca.explained_variance_
 	ratio = pca.explained_variance_ratio_
 
-#	output = open("PCA_Ratio.csv","w")
-#	output.write("Component,Variance Ratio\n")
-
-	counter = 1
-	for line in ratio:
-		output.write(str(counter))
-		output.write(",")
-		output.write(str(line))
-		output.write("\n")
-		counter += 1
-
-	output.close()
-
 	#Reconstruction
 	mean = numpy.mean(X,axis=0)
 
@@ -52,4 +39,4 @@ def PCA(N):
 		print "Number of Components Used: %d\tMSE: %f" % (n,avgMSE)
 
 if __name__ == "__main__":
-	PCA([10])
+	PCA([5,10,20,50,100,200,300])

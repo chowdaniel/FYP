@@ -39,7 +39,7 @@ def buildModel(input_dim):
 
 	model.add(Dense(input_dim,activation="relu"))
 
-	opt = Adam(lr=0.0001)
+	opt = Adam(lr=0.001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
 	return model

@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	ENCODER_ACTIVATION = activation[0]
 	DECODER_ACTIVATION = activation[0]
 
-	HIDDEN_DIM = 5
+	HIDDEN_DIM = 10
 	N_RUNS = 20
 	nStocks = X.shape[1]
 

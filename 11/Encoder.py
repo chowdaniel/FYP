@@ -7,7 +7,7 @@ import pandas
 import numpy
 import os
 
-def importData():
+def import_data():
 	FILENAME = "Data.csv"
 
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
@@ -21,7 +21,7 @@ def importData():
 
 	return (data,data,list(imported_data))
 
-def buildModel(encoder_activation,decoder_activation,input_dim,hidden_dim):
+def build_model(encoder_activation,decoder_activation,input_dim,hidden_dim):
 	#Build and Fit Model
 	model = Sequential()
 	leakyLayer = LeakyReLU(alpha=0.01)
@@ -44,7 +44,7 @@ def buildModel(encoder_activation,decoder_activation,input_dim,hidden_dim):
 
 	return model
 
-def fitModel(model,X,Y):
+def fit_model(model,X,Y):
 
 	model.fit(X,X,batch_size=5,epochs=30,validation_split=0,verbose=2)
 
@@ -59,7 +59,7 @@ def fitModel(model,X,Y):
 	return MSE
 
 if __name__ == "__main__":
-	X,Y,stocks = importData()
+	X,Y,stocks = import_data()
 
 	activation = ["relu","tanh","leaky","sigmoid"]
 
@@ -76,8 +76,8 @@ if __name__ == "__main__":
 	for i in range(N_RUNS):
 		print "Run %d" % (i)
 
-		model = buildModel(ENCODER_ACTIVATION,DECODER_ACTIVATION,nStocks,HIDDEN_DIM)
-		res = fitModel(model,X,Y)
+		model = build_model(ENCODER_ACTIVATION,DECODER_ACTIVATION,nStocks,HIDDEN_DIM)
+		res = fit_model(model,X,Y)
 
 		results[i] = res
 

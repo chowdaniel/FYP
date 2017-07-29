@@ -1,0 +1,7 @@
+Ealy Stopping
+https://keras.io/callbacks/#earlystopping
+https://github.com/fchollet/keras/issues/114
+
+Error Graph
+http://machinelearningmastery.com/display-deep-learning-model-training-history-in-keras/
+

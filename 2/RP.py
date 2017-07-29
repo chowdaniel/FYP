@@ -2,9 +2,12 @@ from keras.models import Sequential
 from keras.layers import Dense,Activation,Dropout
 from keras.optimizers import SGD,Adam
 from keras.layers.advanced_activations import LeakyReLU
+from keras.callbacks import EarlyStopping
 
 import pandas
 import numpy
+
+import matplotlib.pyplot as plt
 
 def get_data(k):
 	start1 = "2014-01-02"
@@ -42,17 +45,17 @@ def build_model(input_dim,leaky=False):
 	dropoutRate = 0.2
 
 	if leaky:
-		model.add(Dense(4,input_dim=input_dim))
+		model.add(Dense(6,input_dim=input_dim))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(4,input_dim=input_dim,activation=activation))
+		model.add(Dense(6,input_dim=input_dim,activation=activation))
 	model.add(Dropout(dropoutRate))
 
 	if leaky:
-		model.add(Dense(2))
+		model.add(Dense(4))
 		model.add(leakyLayer)
 	else:
-		model.add(Dense(2,activation=activation))
+		model.add(Dense(4,activation=activation))
 	model.add(Dropout(dropoutRate))
 	model.add(Dense(1))
 
@@ -87,25 +90,34 @@ def RP(nLow,nHigh):
 		s_res["^GSPC"] = numpy.diff(numpy.log(sample.as_matrix(columns=["^GSPC"])),axis=0)
 		v_res["^GSPC"] = numpy.diff(numpy.log(validation.as_matrix(columns=["^GSPC"])),axis=0)
 
-		#Calibration Phase====================================================
-		#Import data for stocks
-		data = pandas.DataFrame()
+		#Setup Training and Validation Set
+		trainData = pandas.DataFrame()
+		valData = pandas.DataFrame()
 
 		for stock in chosen_stocks:
 			prices = sample[stock]
-			data[stock] = prices
+			trainData[stock] = prices
+
+			prices = validation[stock]
+			valData[stock] = prices
 
 		#Extract X and Y as numpy arrays
-		X = data.as_matrix(columns=chosen_stocks[0:-1])
-		Y = data.as_matrix(columns=chosen_stocks[-1:])
+		trainX = trainData.as_matrix(columns=chosen_stocks[0:-1])
+		trainY = trainData.as_matrix(columns=chosen_stocks[-1:])
+		valX = valData.as_matrix(columns=chosen_stocks[0:-1])
+		valY = valData.as_matrix(columns=chosen_stocks[-1:])
 
 		#log prices
-		X = numpy.log(X)
-		Y = numpy.log(Y)
+		trainX = numpy.log(trainX)
+		trainY = numpy.log(trainY)
+		valX = numpy.log(valX)
+		valY = numpy.log(valY)
 
 		#log returns
-		X = numpy.diff(X,axis=0)
-		Y = numpy.diff(Y,axis=0)
+		trainX = numpy.diff(trainX,axis=0)
+		trainY = numpy.diff(trainY,axis=0)
+		valX = numpy.diff(valX,axis=0)
+		valY = numpy.diff(valY,axis=0)
 
 		#Build and fit Deep Network
 		model = build_model(nLow+nHigh,leaky=False)
@@ -113,36 +125,26 @@ def RP(nLow,nHigh):
 		opt = Adam(lr=0.001)
 		model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
-		model.fit(X,Y,batch_size=40,epochs=100,validation_split=0,verbose=0)
+		earlyStopping = EarlyStopping(monitor="val_loss",min_delta=0,patience=3,mode="min")
 
-		Y_pred = model.predict(X)
+		history = model.fit(trainX,trainY,batch_size=40,epochs=100,validation_data=(valX,valY),callbacks=[earlyStopping],verbose=0)
+
+		# summarize history for loss
+		plt.plot(history.history['loss'])
+		plt.plot(history.history['val_loss'])
+		plt.title('model loss')
+		plt.ylabel('loss')
+		plt.xlabel('epoch')
+		plt.legend(['Train', 'Validation'], loc='upper left')
+		plt.show()
+		
+		Y_pred = model.predict(trainX)
 		#s_res[counter] = Y_pred
-
-		#Validation Phase====================================================
-		#Import data for stocks
-		data = pandas.DataFrame()
-
-		for stock in chosen_stocks:
-			prices = validation[stock]
-			data[stock] = prices
-
-		#Extract X and Y as numpy arrays
-		X = data.as_matrix(columns=chosen_stocks[0:-1])
-		Y = data.as_matrix(columns=chosen_stocks[-1:])
-
-		#log prices
-		X = numpy.log(X)
-		Y = numpy.log(Y)
-
-		#log returns
-		X = numpy.diff(X,axis=0)
-		Y = numpy.diff(Y,axis=0)
-
-		Y_pred = model.predict(X)
+		Y_pred = model.predict(valX)
 		#v_res[counter] = Y_pred
 
-		diff = Y - Y_pred
-		MSE = numpy.sum(numpy.square(diff),axis=0)/X.shape[0]
+		diff = valY - Y_pred
+		MSE = numpy.sum(numpy.square(diff),axis=0)/valX.shape[0]
 
 		mse.append(MSE)
 	print mse

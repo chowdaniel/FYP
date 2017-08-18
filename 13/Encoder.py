@@ -4,7 +4,6 @@ from keras.optimizers import SGD,Adam
 
 import pandas
 import numpy
-import os
 
 def importData():
 	FILENAME = "Data.csv"

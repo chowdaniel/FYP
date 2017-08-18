@@ -5,7 +5,6 @@ from keras.layers.advanced_activations import LeakyReLU
 
 import pandas
 import numpy
-import os
 
 def import_data():
 	FILENAME = "Data.csv"

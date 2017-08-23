@@ -20,25 +20,23 @@ def import_data():
 
 	return (data,data,list(imported_data))
 
-def build_model(encoder_activation,decoder_activation,input_dim,hidden_dim):
+def build_model(activation,input_dim,hidden_dim):
 	#Build and Fit Model
 	model = Sequential()
-	leakyLayer = LeakyReLU(alpha=0.01)
 
-	if encoder_activation == "leaky":
-		model.add(Dense(hidden_dim,input_dim=input_dim))
-		model.add(leakyLayer)
-	else:
-		model.add(Dense(hidden_dim,input_dim=input_dim,activation=encoder_activation))
-	model.add(Dropout(0.2))
+	dropoutRate = 0.2
 
-	if decoder_activation == "leaky":
-		model.add(Dense(input_dim))
-		model.add(leakyLayer)
-	else:
-		model.add(Dense(input_dim,activation=decoder_activation))
+	model.add(Dense(hidden_dim[0],input_dim=input_dim,activation=activation))
+	#model.add(Dropout(dropoutRate))
 
-	opt = Adam(lr=0.00001)
+	for i in range(1,len(hidden_dim)):
+		model.add(Dense(hidden_dim[i],activation=activation))
+		#model.add(Dropout(dropoutRate))
+
+	#Add Output Layer
+	model.add(Dense(input_dim))
+
+	opt = Adam(lr=0.001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
 	return model
@@ -60,13 +58,12 @@ def fit_model(model,X,Y):
 if __name__ == "__main__":
 	X,Y,stocks = import_data()
 
-	activation = ["relu","tanh","leaky","sigmoid"]
+	activation = ["relu","tanh","sigmoid"]
 
-	ENCODER_ACTIVATION = activation[2]
-	DECODER_ACTIVATION = activation[2]
+	ACTIVATION = activation[1]
 
-	HIDDEN_DIM = 10
-	N_RUNS = 20
+	HIDDEN_DIM = [15,5,15]
+	N_RUNS = 10
 	nStocks = X.shape[1]
 
 	results = numpy.empty([N_RUNS,nStocks])
@@ -75,7 +72,7 @@ if __name__ == "__main__":
 	for i in range(N_RUNS):
 		print "Run %d" % (i)
 
-		model = build_model(ENCODER_ACTIVATION,DECODER_ACTIVATION,nStocks,HIDDEN_DIM)
+		model = build_model(ACTIVATION,nStocks,HIDDEN_DIM)
 		res = fit_model(model,X,Y)
 
 		results[i] = res

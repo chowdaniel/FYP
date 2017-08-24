@@ -116,7 +116,7 @@ def RP(nLow,nHigh):
     valY = numpy.diff(valY,axis=0)    
     
     #Begin Prediction for models
-    prediction = []    
+    prediction = pandas.DataFrame(index=valData.index[1:])
     for i in range(nFits):
         model = build_model(nLow+nHigh,leaky=False)
 
@@ -128,11 +128,11 @@ def RP(nLow,nHigh):
         history = model.fit(trainX,trainY,batch_size=40,epochs=100,validation_data=(valX,valY),callbacks=[earlyStop],verbose=0)
 
         Y_pred = model.predict(valX)
-        prediction.append(Y_pred)
-    
-    prediction = numpy.array(prediction)
+        prediction[i] = Y_pred
+
+    prediction["Mean"] = numpy.mean(prediction,axis=1)
     print prediction
-    numpy.savetxt("output.csv",prediction)
+    prediction.to_csv("output.csv")    
 
 if __name__ == "__main__":
     RP(20,0)

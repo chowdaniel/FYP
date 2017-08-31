@@ -27,14 +27,14 @@ def build_model(activation,input_dim,hidden_dim):
 	dropoutRate = 0.2
 
 	model.add(Dense(hidden_dim[0],input_dim=input_dim,activation=activation))
-	#model.add(Dropout(dropoutRate))
+	model.add(Dropout(dropoutRate))
 
 	for i in range(1,len(hidden_dim)):
 		model.add(Dense(hidden_dim[i],activation=activation))
-		#model.add(Dropout(dropoutRate))
+		model.add(Dropout(dropoutRate))
 
 	#Add Output Layer
-	model.add(Dense(input_dim))
+	model.add(Dense(input_dim,activation=activation))
 
 	opt = Adam(lr=0.001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
@@ -43,7 +43,7 @@ def build_model(activation,input_dim,hidden_dim):
 
 def fit_model(model,X,Y):
 
-	model.fit(X,X,batch_size=5,epochs=30,validation_split=0,verbose=2)
+	model.fit(X,X,batch_size=20,epochs=200,validation_split=0,verbose=2)
 
 	#Calculate Error for each Symbol
 	y_pred = model.predict(X)
@@ -58,11 +58,11 @@ def fit_model(model,X,Y):
 if __name__ == "__main__":
 	X,Y,stocks = import_data()
 
-	activation = ["relu","tanh","sigmoid"]
+	activation = ["relu","tanh","sigmoid","elu"]
 
-	ACTIVATION = activation[1]
+	ACTIVATION = activation[0]
 
-	HIDDEN_DIM = [15,5,15]
+	HIDDEN_DIM = [5]
 	N_RUNS = 10
 	nStocks = X.shape[1]
 

@@ -1,11 +1,12 @@
 from keras.models import Sequential
 from keras.layers import Dense,Activation,Dropout
 from keras.optimizers import SGD,Adam
+from keras.layers.advanced_activations import LeakyReLU
 
 import pandas
 import numpy
 
-def importData():
+def import_data():
 	FILENAME = "Data.csv"
 
 	imported_data = pandas.read_csv(FILENAME,header=0,index_col=0)
@@ -19,33 +20,30 @@ def importData():
 
 	return (data,data,list(imported_data))
 
-def buildModel(input_dim):
+def build_model(activation,input_dim,hidden_dim):
 	#Build and Fit Model
 	model = Sequential()
 
-	layers = 2
+	dropoutRate = 0.2
 
-	model.add(Dense(7,input_dim=input_dim,activation="relu"))
-	model.add(Dropout(0.2))
+	model.add(Dense(hidden_dim[0],input_dim=input_dim,activation=activation))
+	model.add(Dropout(dropoutRate))
 
-	if layers >= 2:
-		model.add(Dense(3,activation="relu"))
-		model.add(Dropout(0.2))
+	for i in range(1,len(hidden_dim)):
+		model.add(Dense(hidden_dim[i],activation=activation))
+		model.add(Dropout(dropoutRate))
 
-	if layers == 3:
-		model.add(Dense(4,activation="relu"))
-		model.add(Dropout(0.2))
-
-	model.add(Dense(input_dim,activation="relu"))
+	#Add Output Layer
+	model.add(Dense(input_dim,activation=activation))
 
 	opt = Adam(lr=0.001)
 	model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
 
 	return model
 
-def fitModel(model,X,Y):
+def fit_model(model,X,Y):
 
-	model.fit(X,X,batch_size=5,epochs=30,validation_split=0,verbose=2)
+	model.fit(X,X,batch_size=20,epochs=200,validation_split=0,verbose=2)
 
 	#Calculate Error for each Symbol
 	y_pred = model.predict(X)
@@ -58,9 +56,14 @@ def fitModel(model,X,Y):
 	return MSE
 
 if __name__ == "__main__":
-	X,Y,stocks = importData()
+	X,Y,stocks = import_data()
 
-	N_RUNS = 20
+	activation = ["relu","tanh","sigmoid"]
+
+	ACTIVATION = activation[1]
+
+	HIDDEN_DIM = [5]
+	N_RUNS = 10
 	nStocks = X.shape[1]
 
 	results = numpy.empty([N_RUNS,nStocks])
@@ -69,8 +72,8 @@ if __name__ == "__main__":
 	for i in range(N_RUNS):
 		print "Run %d" % (i)
 
-		model = buildModel(nStocks)
-		res = fitModel(model,X,Y)
+		model = build_model(ACTIVATION,nStocks,HIDDEN_DIM)
+		res = fit_model(model,X,Y)
 
 		results[i] = res
 

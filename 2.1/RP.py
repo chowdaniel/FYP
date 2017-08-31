@@ -4,6 +4,8 @@ from keras.optimizers import SGD,Adam
 from keras.layers.advanced_activations import LeakyReLU
 from keras.callbacks import EarlyStopping
 
+import statsmodels.api as sm
+
 import pandas
 import numpy
 
@@ -64,7 +66,7 @@ def build_model(input_dim,leaky=False):
     return model
 
 def RP(nLow,nHigh):
-    nFits = 10
+    nFits = 20
     
     symbols = open("Portfolio.csv","r")
 
@@ -123,20 +125,93 @@ def RP(nLow,nHigh):
         opt = Adam(lr=0.001)
         model.compile(optimizer=opt,loss="mse",metrics=["accuracy"])
         
-        earlyStop = EarlyStopping(monitor="val_loss",min_delta=0,patience=3,mode="min")
+        earlyStop = EarlyStopping(monitor="val_loss",min_delta=0,patience=10,mode="min")
 
-        history = model.fit(trainX,trainY,batch_size=40,epochs=100,validation_data=(valX,valY),callbacks=[earlyStop],verbose=0)
+        history = model.fit(trainX,trainY,batch_size=40,epochs=200,validation_data=(valX,valY),callbacks=[earlyStop],verbose=0)
 
         Y_pred = model.predict(valX)
         prediction[i] = Y_pred
 
     prediction["Mean"] = numpy.mean(prediction,axis=1)
-    print prediction
+    prediction["True"] = valY
+    prediction["Diff"] = prediction["Mean"] - prediction["True"]
     prediction.to_csv("output.csv")    
 
-if __name__ == "__main__":
-    RP(20,0)
+    SSE = numpy.sum(numpy.square(prediction["Diff"]))
+    
+    print "ReLU Model: %f" % SSE
 
+def Linear(nLow,nHigh):
+    symbols = open("Portfolio.csv","r")
+
+    stocks = []
+    for symbol in symbols:
+        if symbol != "\n":
+            stocks.append(symbol.replace("\n",""))
+    symbols.close()
+
+    #Select the stocks used for replicating portfolio
+    chosen_stocks = []
+    #Stocks with most communal info
+    for i in range(nLow):
+        chosen_stocks.append(stocks[i])
+    #Stocks with least communal info
+    for i in range(nHigh):
+        chosen_stocks.append(stocks[-i-1])
+    chosen_stocks.append("^GSPC")
+      
+    sample,validation = get_data()
+
+    #Setup Training and Validation Set
+    trainData = pandas.DataFrame()
+    valData = pandas.DataFrame()
+
+    for stock in chosen_stocks:
+        prices = sample[stock]
+        trainData[stock] = prices
+
+        prices = validation[stock]
+        valData[stock] = prices
+
+    #Extract X and Y as numpy arrays
+    trainX = trainData.as_matrix(columns=chosen_stocks[0:-1])
+    trainY = trainData.as_matrix(columns=chosen_stocks[-1:])
+    valX = valData.as_matrix(columns=chosen_stocks[0:-1])
+    valY = valData.as_matrix(columns=chosen_stocks[-1:])
+
+    #log prices
+    trainX = numpy.log(trainX)
+    trainY = numpy.log(trainY)
+    valX = numpy.log(valX)
+    valY = numpy.log(valY)
+
+    #log returns
+    trainX = numpy.diff(trainX,axis=0)
+    trainY = numpy.diff(trainY,axis=0)
+    valX = numpy.diff(valX,axis=0)
+    valY = numpy.diff(valY,axis=0)  
+
+    trainX = sm.add_constant(trainX)
+    model = sm.OLS(trainY,trainX)
+    results = model.fit()    
+    
+    valX = sm.add_constant(valX)
+    Y_pred = results.predict(valX)
+    
+    table = pandas.DataFrame(data=valY)
+    table["True"] = valY
+    table["Pred"] = Y_pred
+    table["Diff"] = table["Pred"] - table["True"]
+
+    SSE = numpy.sum(numpy.square(table["Diff"]))  
+    print "Linear Model: %f" % SSE
+
+if __name__ == "__main__":
+    n_low = 50
+    n_high = 50
+    
+    RP(n_low,n_high)
+    Linear(n_low,n_high)
 
 
 

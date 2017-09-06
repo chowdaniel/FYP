@@ -205,12 +205,24 @@ def Linear(nLow,nHigh):
 
     SSE = numpy.sum(numpy.square(table["Diff"]))  
     print "Linear Model: %f" % SSE
+    
+    table = pandas.DataFrame(index=trainData.index[1:])
+    table["True"] = trainY
+    table["Predicted"] = results.predict(trainX)
+    
+    table.to_csv("Linear_Sample.csv")
+    
+    table = pandas.DataFrame(index=valData.index[1:])
+    table["True"] = valY
+    table["Predicted"] = Y_pred
+    
+    table.to_csv("Linear_Validation.csv")
 
 if __name__ == "__main__":
-    n_low = 50
-    n_high = 50
+    n_low = 40
+    n_high = 10
     
-    RP(n_low,n_high)
+    #RP(n_low,n_high)
     Linear(n_low,n_high)
 
 

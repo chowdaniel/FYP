@@ -28,7 +28,7 @@ class Backtest():
             self.beta = res.params[1]
         else:
             self.beta = beta
-        #print "Beta: %s" % self.beta
+        print "Beta: %s" % self.beta
         
         self.df["res"] = df[self.stock2] - self.beta*df[self.stock1]
         
@@ -178,7 +178,7 @@ while entry <= 2:
     while stop <=3:
         b = Backtest(sample,entry,stop)
         ret = b.start_backtest()
-        print ret
+        #print ret
         stat = numpy.mean(ret)/numpy.std(ret)
         
         if stat > max_stat:

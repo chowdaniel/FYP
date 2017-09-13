@@ -18,25 +18,30 @@ class DeepQ():
         self.model = self.build_model()
         
     def build_model(self):
-        activation = 'relu'
+        activation = 'tanh'
         
         model = Sequential()
+        
         model.add(Dense(self.action_size/2,input_dim=5))
         model.add(Activation(activation))
-        model.add(Dense(self.action_size))
+        model.add(Dense(self.action_size/2))
         model.add(Activation(activation))
+        
+        model.add(Dense(self.action_size))
 
-        opt = Adam(lr=0.001)
+        model.load_weights("model.h5")
+
+        opt = Adam(lr=0.0001)
         model.compile(optimizer=opt,loss="mse")
         return model
     
     def fit_model(self,iterations):
         epsilon = 0.2
-        REPLAY_SIZE = 5000
+        REPLAY_SIZE = 2000
         BATCH_SIZE = 32
-        INITIAL_OBS = 300
+        INITIAL_OBS = 50
         
-        GAMMA = 0.8
+        GAMMA = 0.9
         
         D = deque()
         
@@ -66,7 +71,7 @@ class DeepQ():
             if len(D) > REPLAY_SIZE:
                 D.popleft()
 
-            if t > 0:
+            if t >= 0:
                 minibatch = random.sample(D, BATCH_SIZE)
                 
                 inputs = []
@@ -94,9 +99,19 @@ class DeepQ():
                 inputs = numpy.array(inputs)
                 targets = numpy.array(targets)
 
-                self.model.train_on_batch(inputs,targets)
+                loss = self.model.train_on_batch(inputs,targets)
+                
+                if numpy.isnan(loss):
+                    print "Iteration %d: Loss - %f" % (t,loss)
+                    print minibatch
+                    return
+                if t%100 == 0:
+                    print "Iteration %d: Loss - %f" % (t,loss)
+
 
             t += 1
+        print q    
+        self.model.save_weights("model.h5",overwrite=True)
 
 if __name__ == "__main__":
     parser = lambda x: datetime.datetime.strptime(x,"%Y-%m-%d")
@@ -108,6 +123,6 @@ if __name__ == "__main__":
     env = Env(sample,beta)        
     q = DeepQ(env)
     
-    q.fit_model(100000)
+    q.fit_model(5000)
         
     

@@ -2,17 +2,18 @@ import pandas
 import datetime
 import numpy
 
-ENTRY_MAX = 2.0
+ENTRY_MAX = 1.5
 STOP_MAX = 3.0
 ACTION_STEP_SIZE = 0.1
 STATE_SIZE = 5
 
 class Env():
-    def __init__(self,df,beta):
+    def __init__(self,df,beta,verbose=False):
         self.action_space = []
         
         self.df = df
         self.beta = beta
+        self.verbose = verbose
 
         self.current = STATE_SIZE-1
         self.n_days = 5
@@ -62,6 +63,8 @@ class Env():
         return (self.get_state(),reward,terminal)
     
     def get_reward(self,action):
+        if self.verbose:
+            print action
         entry = action[0]
         stop = action[1]
         
@@ -77,15 +80,13 @@ class Env():
         
         returns = []
         position = 0
+        #Find Opening
         while self.current < len(self.df) and position == 0:
-            #Find Opening
             z = 0
             try:
                 z = (res[self.current]-mean[self.current])/sd[self.current]
             except:
                 continue
-            #print self.get_state()
-            #print z
             
             returns.append(0)
             if z > entry and z < stop:
@@ -93,30 +94,23 @@ class Env():
                 s1 = self.beta
 
                 position = 1
-                #print "1"
             elif z < -entry and z > -stop:
                 s2 = 1
                 s1 = -self.beta
        
                 position = -1
-                #print "-1"
+            
+            if self.verbose:
+                print "State: %s\tz-score: %f\tPosition: %d" % (self.get_state(),z,position)
             self.current += 1
-        if position == 0:
-            sharpe = 0
-            terminal = 1
-            self.current = STATE_SIZE-1
             
-            return (sharpe,terminal)
-            
+        #Find Closing            
         while self.current < len(self.df) and position != 0:
-            #Find Closing
             z = 0
             try:
                 z = (res[self.current]-mean[self.current])/sd[self.current]
             except:
                 continue
-            #print self.get_state()
-            #print z
             
             ret = 0
             ret += s1*p1[self.current]
@@ -124,19 +118,22 @@ class Env():
             returns.append(ret)
 
             #Check stop loss condition
+            trade = ""
             if position == 1:
                 if z > stop:
                     s1 = 0
                     s2 = 0
                     
                     position = 0
+                    trade = "Stop"
             elif position == -1:
-                if z < stop:
+                if z < -stop:
                     s1 = 0
                     s2 = 0
                     
                     position = 0
-            
+                    trade = "Stop"
+                    
             #Check closing condition
             if position == 1:
                 if z < 0:
@@ -144,23 +141,30 @@ class Env():
                     s2 = 0
                     
                     position = 0
-                    #print "Close"
+                    trade = "Close"
             elif position == -1:
                 if z > 0:
                     s1 = 0
                     s2 = 0
                     
                     position = 0                   
-                    #print "Close"        
+                    trade = "Close" 
+                    
+            if self.verbose:
+                print "State: %s\tz-score: %f\tPosition: %d\tTrade: %s" % (self.get_state(),z,position,trade)
             self.current += 1
 
-        sharpe = numpy.mean(returns)/numpy.std(returns)
+        if self.verbose:
+            print returns
+        reward = numpy.mean(returns)*100
+        if numpy.isnan(reward):
+            reward = 0
         terminal = 0
         if self.current == len(self.df):
             terminal = 1
             self.current = STATE_SIZE-1
         
-        return (sharpe,terminal)
+        return (reward,terminal)
         
 
         
@@ -171,8 +175,8 @@ if __name__ == "__main__":
     beta = 0.958996658297
     
            
-    a = Env(sample,beta)      
+    a = Env(sample,beta,True)      
     print a.execute(1) 
     print ""
-    #print a.execute(30) 
+    print a.execute(30) 
         

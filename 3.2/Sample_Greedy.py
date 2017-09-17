@@ -46,14 +46,10 @@ class DeepQ():
             #Execute action
             s_t1,r,terminal = self.env.execute(action_index)
 
-            returns.append(r)
-            try:
-                r = numpy.mean(r)
-            except:
-                r = 0    
+            returns += r
                 
             s_t = s_t1
-        print returns
+        print numpy.mean(returns)
 
 if __name__ == "__main__":
     parser = lambda x: datetime.datetime.strptime(x,"%Y-%m-%d")

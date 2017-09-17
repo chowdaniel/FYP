@@ -29,7 +29,7 @@ class DeepQ():
         
         model.add(Dense(self.action_size))
 
-        model.load_weights("model.h5")
+        #model.load_weights("model.h5")
 
         opt = Adam(lr=0.000001)
         model.compile(optimizer=opt,loss="mse")
@@ -39,9 +39,9 @@ class DeepQ():
         epsilon = 0.01
         REPLAY_SIZE = 2000
         BATCH_SIZE = 32
-        INITIAL_OBS = 50
+        INITIAL_OBS = 100
         
-        GAMMA = 0.9
+        GAMMA = 0.99
         
         D = deque()
         

@@ -88,7 +88,6 @@ class Env():
             except:
                 continue
             
-            returns.append(0)
             if z > entry and z < stop:
                 s2 = -1
                 s1 = self.beta
@@ -99,6 +98,8 @@ class Env():
                 s1 = -self.beta
        
                 position = -1
+            else:
+                returns.append(0)                
             
             if self.verbose:
                 print "State: %s\tz-score: %f\tPosition: %d" % (self.get_state(),z,position)
@@ -107,11 +108,8 @@ class Env():
         #Find Closing            
         while self.current < len(self.df) and position != 0:
             z = 0
-            try:
-                z = (res[self.current]-mean[self.current])/sd[self.current]
-            except:
-                continue
-            
+            z = (res[self.current]-mean[self.current])/sd[self.current]
+
             ret = 0
             ret += s1*p1[self.current]
             ret += s2*p2[self.current] 
@@ -156,9 +154,7 @@ class Env():
 
         if self.verbose:
             print returns
-        reward = numpy.mean(returns)*100
-        if numpy.isnan(reward):
-            reward = 0
+        reward = returns
         terminal = 0
         if self.current == len(self.df):
             terminal = 1

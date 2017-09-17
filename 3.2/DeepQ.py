@@ -18,7 +18,7 @@ class DeepQ():
         self.model = self.build_model()
         
     def build_model(self):
-        activation = 'tanh'
+        activation = 'relu'
         
         model = Sequential()
         
@@ -31,12 +31,12 @@ class DeepQ():
 
         model.load_weights("model.h5")
 
-        opt = Adam(lr=0.0001)
+        opt = Adam(lr=0.00001)
         model.compile(optimizer=opt,loss="mse")
         return model
     
     def fit_model(self,iterations):
-        epsilon = 0.2
+        epsilon = 0.1
         REPLAY_SIZE = 2000
         BATCH_SIZE = 32
         INITIAL_OBS = 50
@@ -65,6 +65,10 @@ class DeepQ():
             
             #Execute action
             s_t1,r,terminal = self.env.execute(action_index)
+            try:
+                r = numpy.mean(r) * 100
+            except:
+                r = 0
             
             temp = (s_t,action_index,r,s_t1,terminal)
             D.append(temp)
@@ -104,6 +108,7 @@ class DeepQ():
                 if numpy.isnan(loss):
                     print "Iteration %d: Loss - %f" % (t,loss)
                     print minibatch
+                    print q
                     return
                 if t%100 == 0:
                     print "Iteration %d: Loss - %f" % (t,loss)

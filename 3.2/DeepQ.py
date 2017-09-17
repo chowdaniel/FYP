@@ -31,12 +31,12 @@ class DeepQ():
 
         model.load_weights("model.h5")
 
-        opt = Adam(lr=0.00001)
+        opt = Adam(lr=0.000001)
         model.compile(optimizer=opt,loss="mse")
         return model
     
     def fit_model(self,iterations):
-        epsilon = 0.1
+        epsilon = 0.01
         REPLAY_SIZE = 2000
         BATCH_SIZE = 32
         INITIAL_OBS = 50
@@ -128,6 +128,6 @@ if __name__ == "__main__":
     env = Env(sample,beta)        
     q = DeepQ(env)
     
-    q.fit_model(5000)
+    q.fit_model(2000)
         
     

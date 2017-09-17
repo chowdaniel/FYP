@@ -16,7 +16,7 @@ class DeepQ():
         self.model = self.build_model()
         
     def build_model(self):
-        activation = 'tanh'
+        activation = 'relu'
         
         model = Sequential()
         
@@ -47,7 +47,11 @@ class DeepQ():
             s_t1,r,terminal = self.env.execute(action_index)
 
             returns.append(r)
-            
+            try:
+                r = numpy.mean(r)
+            except:
+                r = 0
+                
             s_t = s_t1
         print returns
 

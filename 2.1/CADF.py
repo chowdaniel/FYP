@@ -10,8 +10,8 @@ import math
 import datetime
 
 def run_test(data):
-    stock1 = "True"
-    stock2 = "Predicted"
+    stock1 = "SP500"
+    stock2 = "Replication"
     
     df = data
     X = df[stock1]
@@ -132,7 +132,8 @@ def plot_residuals(df,start,end):
     fig, ax = plt.subplots()
     ax.plot(df.index, df["res"], label="Residuals")
    
-    months = mdates.MonthLocator()
+    months = mdates.MonthLocator(interval=3)
+    print months
     ax.xaxis.set_major_locator(months)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
     ax.set_xlim(start,end)
@@ -140,8 +141,8 @@ def plot_residuals(df,start,end):
     fig.autofmt_xdate()
     plt.xlabel('Month/Year')
     plt.ylabel('Residual')
-    plt.title('Residual Plot')
-    plt.legend()
+    #plt.title('Residual Plot')
+    #plt.legend()
     plt.show()
      
 

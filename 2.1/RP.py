@@ -207,14 +207,14 @@ def Linear(nLow,nHigh):
     print "Linear Model: %f" % SSE
     
     table = pandas.DataFrame(index=trainData.index[1:])
-    table["True"] = trainY
-    table["Predicted"] = results.predict(trainX)
+    table["SP500"] = trainY
+    table["Replication"] = results.predict(trainX)
     
     table.to_csv("Linear_Sample.csv")
     
     table = pandas.DataFrame(index=valData.index[1:])
-    table["True"] = valY
-    table["Predicted"] = Y_pred
+    table["SP500"] = valY
+    table["Replication"] = Y_pred
     
     table.to_csv("Linear_Validation.csv")
 

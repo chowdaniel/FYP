@@ -190,14 +190,17 @@ def Linear(nLow,nHigh):
     trainY = numpy.diff(trainY,axis=0)
     valX = numpy.diff(valX,axis=0)
     valY = numpy.diff(valY,axis=0)  
-    print numpy.exp(trainY)
-    threshold = 0.03
+
+    trainY2 = numpy.zeros(trainY.shape)
+    threshold = 0.01
     for i in range(len(trainY)):
-        if trainY[i] < -threshold:
-            trainY[i] = threshold
+        if numpy.exp(trainY[i]) < 1-threshold:
+            trainY2[i] = numpy.log(1+threshold)
+        else:
+            trainY2[i] = trainY[i]
 
     trainX = sm.add_constant(trainX)
-    model = sm.OLS(trainY,trainX)
+    model = sm.OLS(trainY2,trainX)
     results = model.fit()    
     
     valX = sm.add_constant(valX)
@@ -212,14 +215,15 @@ def Linear(nLow,nHigh):
     print "Linear Model: %f" % SSE
     
     table = pandas.DataFrame(index=trainData.index[1:])
-    table["True"] = trainY
-    table["Predicted"] = results.predict(trainX)
+    table["SP500"] = trainY
+    table["Replication"] = results.predict(trainX)
+    table["Improved"] = trainY2
     
     table.to_csv("Linear_Sample.csv")
     
     table = pandas.DataFrame(index=valData.index[1:])
-    table["True"] = valY
-    table["Predicted"] = Y_pred
+    table["SP500"] = valY
+    table["Replication"] = Y_pred
     
     table.to_csv("Linear_Validation.csv")
 

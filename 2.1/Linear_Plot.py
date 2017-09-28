@@ -12,8 +12,8 @@ def plot(data):
     dates = data.index
     dates = map(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"),dates)    
 
-    ax.plot(dates,numpy.cumsum(data["True"]),label="SP500")
-    ax.plot(dates,numpy.cumsum(data["Predicted"]),label="Predicted")
+    ax.plot(dates,numpy.cumsum(data["SP500"]),label="S&P500")
+    ax.plot(dates,numpy.cumsum(data["Replication"]),label="Replication")
 
     #Formatting for plot
     #Format x-axis
@@ -23,7 +23,7 @@ def plot(data):
     fig.autofmt_xdate()
     #Label Axis
     plt.xlabel("Month/Year")
-    plt.ylabel("Cumulative Return")
+    plt.ylabel("Cumulative log Return")
     #Show legend
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 

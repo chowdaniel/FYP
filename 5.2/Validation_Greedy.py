@@ -21,7 +21,7 @@ class DeepQ():
         
         model = Sequential()
         
-        model.add(Dense(3,input_dim=3))
+        model.add(Dense(3,input_dim=5))
         model.add(Activation(activation))
         model.add(Dense(2))
         model.add(Activation(activation))
@@ -33,7 +33,7 @@ class DeepQ():
         opt = Adam(lr=0.0001)
         model.compile(optimizer=opt,loss="mse")
         return model
-
+ 
     def build_input(self,s_t):
         #Converts the state to DNN inputs by appending all possible actions to the state
         x_t = []
@@ -56,14 +56,14 @@ class DeepQ():
             q = self.model.predict(x_t)
 
             action_index = numpy.argmax(q)
-            self.actions.append(action_index)
+            self.actions.append(action_index)            
             #Execute action
             s_t1,r,terminal = self.env.execute(action_index)
 
             returns += r
-                
+    
             s_t = s_t1
-        print returns
+        print numpy.mean(returns)
         self.convert_index()
         
     def convert_index(self):
@@ -75,7 +75,7 @@ class DeepQ():
 if __name__ == "__main__":
     parser = lambda x: datetime.datetime.strptime(x,"%Y-%m-%d")
     
-    sample = pandas.read_csv("Linear_Sample.csv",header=0,index_col=0,date_parser=parser)
+    sample = pandas.read_csv("Linear_Validation.csv",header=0,index_col=0,date_parser=parser)
     beta = 0.958996658297
     
            
@@ -83,6 +83,11 @@ if __name__ == "__main__":
     q = DeepQ(env)
     
     q.test_model()
+    print q.actions    
+    
+    
+    
+    
     
     
     

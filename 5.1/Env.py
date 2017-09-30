@@ -1,5 +1,6 @@
 import pandas
 import datetime
+import numpy
 
 class Env():
     def __init__(self,df,beta,verbose=False):
@@ -9,18 +10,22 @@ class Env():
         self.beta = beta
         self.verbose = verbose
 
-        self.current = 1
-        self.n_days = 3
+        self.current = 0
         
         self.df["res"] = self.df["Predicted"] - beta*self.df["True"]
     
     def get_state(self):
-        prev = self.df[self.current-1:self.current]
+        prev = self.df[self.current:self.current+1]
         
         sp500Ret = prev["True"].values[0]
         res = prev["res"].values[0]
         
+        sp500Ret = numpy.exp(sp500Ret)-1
+        res = numpy.exp(res)-1
+        
         s_t = [sp500Ret,res]
+        s_t = numpy.array(s_t)
+        s_t = s_t.reshape((1,len(s_t)))
         return s_t
     
     def execute(self,action):
@@ -73,8 +78,9 @@ if __name__ == "__main__":
     beta = 0.958996658297
     
            
-    a = Env(sample,beta,True)     
-    a.get_state()
+    a = Env(sample,beta,True)  
+    print a.df
+    print a.get_state()
     print a.execute(1) 
     print a.execute(0)
 

@@ -14,9 +14,10 @@ class DeepQ():
         self.action_size = len(env.action_space)
         
         self.model = self.build_model()
+        self.actions = []
         
     def build_model(self):
-        activation = 'relu'
+        activation = 'tanh'
         
         model = Sequential()
         
@@ -42,14 +43,21 @@ class DeepQ():
             #Find and take greedy action
             q = self.model.predict(s_t)
             action_index = numpy.argmax(q)
-            
+            self.actions.append(action_index)            
             #Execute action
             s_t1,r,terminal = self.env.execute(action_index)
 
             returns += r
-                
+    
             s_t = s_t1
         print numpy.mean(returns)
+        self.convert_index()
+        
+    def convert_index(self):
+        for i in range(len(self.actions)):
+            self.actions[i] = env.action_space[self.actions[i]]
+        
+        print self.actions
 
 if __name__ == "__main__":
     parser = lambda x: datetime.datetime.strptime(x,"%Y-%m-%d")
@@ -62,3 +70,12 @@ if __name__ == "__main__":
     q = DeepQ(env)
     
     q.test_model()
+    print q.actions    
+    
+    
+    
+    
+    
+    
+    
+    

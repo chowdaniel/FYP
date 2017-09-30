@@ -16,7 +16,7 @@ class Env():
         self.verbose = verbose
 
         self.current = STATE_SIZE-1
-        self.n_days = 5
+        self.n_days = 3
         
         self.df["res"] = self.df["Predicted"] - beta*self.df["True"]
         

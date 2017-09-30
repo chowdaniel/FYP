@@ -21,18 +21,29 @@ class DeepQ():
         
         model = Sequential()
         
-        model.add(Dense(self.action_size/2,input_dim=5))
+        model.add(Dense(3,input_dim=3))
         model.add(Activation(activation))
-        model.add(Dense(self.action_size/2))
+        model.add(Dense(2))
         model.add(Activation(activation))
         
-        model.add(Dense(self.action_size))
+        model.add(Dense(1))
 
         model.load_weights("model.h5")
 
         opt = Adam(lr=0.0001)
         model.compile(optimizer=opt,loss="mse")
         return model
+
+    def build_input(self,s_t):
+        #Converts the state to DNN inputs by appending all possible actions to the state
+        x_t = []
+        
+        for i in range(self.action_size):
+            temp = numpy.append(s_t,self.env.action_space[i])
+            x_t.append(temp)
+        x_t = numpy.array(x_t)
+        
+        return x_t
     
     def test_model(self):
         s_t = self.env.get_state()
@@ -41,7 +52,9 @@ class DeepQ():
         returns = []
         while terminal == 0:
             #Find and take greedy action
-            q = self.model.predict(s_t)
+            x_t = self.build_input(s_t)
+            q = self.model.predict(x_t)
+
             action_index = numpy.argmax(q)
             self.actions.append(action_index)
             #Execute action
@@ -50,7 +63,7 @@ class DeepQ():
             returns += r
                 
             s_t = s_t1
-        print numpy.mean(returns)
+        print returns
         self.convert_index()
         
     def convert_index(self):

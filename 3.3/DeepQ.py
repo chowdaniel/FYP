@@ -22,18 +22,29 @@ class DeepQ():
         
         model = Sequential()
         
-        model.add(Dense(self.action_size/2,input_dim=5))
+        model.add(Dense(3,input_dim=3))
         model.add(Activation(activation))
-        model.add(Dense(self.action_size/2))
+        model.add(Dense(2))
         model.add(Activation(activation))
         
-        model.add(Dense(self.action_size))
+        model.add(Dense(1))
 
-        #model.load_weights("model.h5")
+        model.load_weights("model.h5")
 
         opt = Adam(lr=0.000001)
         model.compile(optimizer=opt,loss="mse")
         return model
+    
+    def build_input(self,s_t):
+        #Converts the state to DNN inputs by appending all possible actions to the state
+        x_t = []
+        
+        for i in range(self.action_size):
+            temp = numpy.append(s_t,self.env.action_space[i])
+            x_t.append(temp)
+        x_t = numpy.array(x_t)
+        
+        return x_t   
     
     def fit_model(self,iterations):
         epsilon = 0.5
@@ -57,19 +68,17 @@ class DeepQ():
                 action_index = random.randint(0,self.action_size-1)
                 a_t[action_index] = 1
             else:
-                #Pick Greedt Action
-                q = self.model.predict(s_t)
+                #Pick Greedy Action
+                x_t = self.build_input(s_t)
+                q = self.model.predict(x_t)
+
                 action_index = numpy.argmax(q)
-                
                 a_t[action_index] = 1
-            
+   
             #Execute action
             s_t1,r,terminal = self.env.execute(action_index)
-            try:
-                r = numpy.mean(r) * 100
-            except:
-                r = 0
-            
+            r = r * 100
+
             temp = (s_t,action_index,r,s_t1,terminal)
             D.append(temp)
             if len(D) > REPLAY_SIZE:
@@ -90,18 +99,21 @@ class DeepQ():
                     s_t1 = element[3]
                     terminal = element[4]
                     
-                    inputs.append(s_t[0])
+                    inputs.append(numpy.append(s_t,self.env.action_space[a_t]))
                     
-                    target = self.model.predict(s_t)[0]
-                    q = self.model.predict(s_t1)
-                    
+                    x_t1 = self.build_input(s_t1)
+                    q = self.model.predict(x_t1)
+
+                    target = 0
                     if terminal == 1:
-                        target[a_t] = r
+                        target = r
                     else:
-                        target[a_t] = r + GAMMA * numpy.max(q)
+                        target = r + GAMMA * numpy.max(q)
                     targets.append(target)
+
                 inputs = numpy.array(inputs)
                 targets = numpy.array(targets)
+                targets = targets.reshape((len(targets),1))
 
                 loss = self.model.train_on_batch(inputs,targets)
                 
@@ -112,7 +124,6 @@ class DeepQ():
                     return
                 if t%100 == 0:
                     print "Iteration %d: Loss - %f" % (t,loss)
-
 
             t += 1
             s_t = s_t1
@@ -128,7 +139,7 @@ if __name__ == "__main__":
            
     env = Env(sample,beta)        
     q = DeepQ(env)
-    
-    q.fit_model(10000)
+
+    q.fit_model(1000)
         
     

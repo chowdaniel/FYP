@@ -17,7 +17,7 @@ def plot(data):
 
     #Formatting for plot
     #Format x-axis
-    months = mdates.MonthLocator()
+    months = mdates.MonthLocator(interval=3)
     ax.xaxis.set_major_locator(months)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y"))
     fig.autofmt_xdate()

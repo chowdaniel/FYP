@@ -192,7 +192,7 @@ def Linear(nLow,nHigh):
     valY = numpy.diff(valY,axis=0)  
 
     trainY2 = numpy.zeros(trainY.shape)
-    threshold = 0.01
+    threshold = 0.02
     for i in range(len(trainY)):
         if numpy.exp(trainY[i]) < 1-threshold:
             trainY2[i] = numpy.log(1+threshold)

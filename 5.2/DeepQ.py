@@ -10,6 +10,9 @@ import pandas
 import numpy
 import random
 
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
 class DeepQ():
     def __init__(self,env):      
         self.env = env
@@ -120,7 +123,10 @@ class DeepQ():
         s_t = self.env.get_state()
         terminal = 0
         
+        date = self.env.df.index
+        
         returns = []
+        dates = []
         while terminal == 0:
             #Find and take greedy action
             q = self.model.predict(s_t)
@@ -128,19 +134,39 @@ class DeepQ():
             action_index = numpy.argmax(q)
             self.actions.append(action_index)
             #Execute action
+            dates.append(date[self.env.current])
             s_t1,r,terminal = self.env.execute(action_index)
 
             returns.append(r)
+            
                 
             s_t = s_t1
-        print numpy.mean(returns)
+
         self.convert_index()
+        self.plot(dates,returns)
         
     def convert_index(self):
         for i in range(len(self.actions)):
             self.actions[i] = env.action_space[self.actions[i]]
         
         print self.actions
+    
+    def plot(self,dates,ts):
+        fig,ax = plt.subplots()
+    
+        ax.plot(dates,numpy.cumsum(ts))
+
+        #Formatting for plot
+        #Format x-axis
+        months = mdates.MonthLocator(interval=3)
+        ax.xaxis.set_major_locator(months)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y"))
+        fig.autofmt_xdate()
+        #Label Axis
+        plt.xlabel("Month/Year")
+        plt.ylabel("Cumulative log Return")
+        #Show legend
+      
 
 if __name__ == "__main__":
     parser = lambda x: datetime.datetime.strptime(x,"%Y-%m-%d")

@@ -22,7 +22,7 @@ class Env():
         
         self.initialize_action_space()
         self.generate_stats()
-        
+
     def initialize_action_space(self):
         entry = 0.1
         stop = round(entry + ACTION_STEP_SIZE,1)
@@ -52,12 +52,11 @@ class Env():
     def get_state(self):
         s_t = self.df[self.current-STATE_SIZE+1:self.current+1]["res"].tolist()
         s_t = numpy.reshape(numpy.array(s_t),(1,STATE_SIZE))
-        
+
         return s_t
     
     def execute(self,actionIndex):
         action = self.action_space[actionIndex]
-        
         reward,terminal = self.get_reward(action)
         
         return (self.get_state(),reward,terminal)
@@ -118,14 +117,7 @@ class Env():
             #Check stop loss condition
             trade = ""
             if position == 1:
-                if z > stop:
-                    s1 = 0
-                    s2 = 0
-                    
-                    position = 0
-                    trade = "Stop"
-            elif position == -1:
-                if z < -stop:
+                if abs(z) > stop:
                     s1 = 0
                     s2 = 0
                     
@@ -171,8 +163,8 @@ if __name__ == "__main__":
     beta = 0.958996658297
     
            
-    a = Env(sample,beta,True)      
+    a = Env(sample,beta,True)  
+    print a.df
+    print a.get_state()
     print a.execute(1) 
-    print ""
-    print a.execute(30) 
-        
+    print a.execute(0)

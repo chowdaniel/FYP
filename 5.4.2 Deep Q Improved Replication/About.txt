@@ -1,0 +1,14 @@
+Deep Reinforcement Learning
+
+State Space
+Previous day residual/spread
+Previous day SP500 return as proxy for market condition
+
+Action Space
+None, Buy, Sell
+
+Mechanics
+Hold for 1 day and close out. Multiple days of hold will be continuous buy actions since no costs are taken into account
+
+Version
+Action as output

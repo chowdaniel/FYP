@@ -1,0 +1,10 @@
+Fitting replicating portfolio using output from Autoencoder
+
+The file "Portfolio.csv" is a sorted list of stocks from lowest SSE to highest SSE
+
+"RP.py" fit the Replicating Portfolio using a Neural Network and Linear Regression and calculates the SSE of the fit
+
+"Linear_Plot.py" plots the cumulative returns of the Replicating Portfolios fitted using Linear Regression on the sample and validation set
+
+
+

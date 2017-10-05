@@ -1,0 +1,4 @@
+Standard Pairs Trading Performance using Z-score and threshold
+
+"CADF.py" tests the data for mean reversion property using the Augmented Dicky Fuller test to test for unit root
+
